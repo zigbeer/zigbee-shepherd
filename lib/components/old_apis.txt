@@ -1,0 +1,107 @@
+Devmgr.prototype.getDeviceAttributeListReq = function (argObj, callback) {
+
+Devmgr.prototype.readDeviceAttributeReq = function (argObj, callback) {
+
+Devmgr.prototype.loadDevicesFromDb = function (callback) {
+
+Devmgr.prototype.newZbDevice = function (argInst, callback) {
+
+function ZbDevice(devInfo) {
+ZbDevice.prototype.findNwkAddrByIeeeAddr = function (callback) {
+ZbDevice.prototype.checkOnline = function (callback) {
+ZbDevice.prototype.save = function (devInfo, callback) {
+ZbDevice.prototype.update = function (devInfo, callback) {
+ZbDevice.prototype.remove = function (callback) {
+ZbDevice.prototype.loadEndpointsFromDb = function (callback) {
+ZbDevice.prototype.getRoutingTable = function (callback) {
+ZbDevice.prototype.setPermitJoin = function (callback) {
+ZbDevice.prototype.changeKey = function (callback) {
+ZbDevice.prototype.getKey = function (callback) {
+ZbDevice.prototype.getDevList = function (callback) {
+ZbDevice.prototype.devListMaintain = function (callback) {
+ZbDevice.prototype.isInDataBase = function (callback) {
+ZbDevice.prototype.devIndexOf = function () {
+
+
+function ZbCoord(devInfo) {
+ZbCoord.prototype.registerEndpoint = function (zbEp, callback) {
+ZbCoord.prototype.reRegisterEndpoint = function (zbEp, callback) {
+ZbCoord.prototype.unRegisterEndpoint = function (zbEp, callback) {
+ZbCoord.prototype.bindZbEpToLocalEp = function (zbEp, cId, localEp, callback) {
+
+
+function Epmgr() {
+Epmgr.prototype.newZbEndpoint = function (argInst, callback) {
+function ZbEndpoint(epInfo) {
+ZbEndpoint.prototype.enableAfDataListener = function () {
+ZbEndpoint.prototype.enableAsLocalEndpoint = function () {
+    this.nextTransId = function () {
+    this.bindZbEpClusterToMe = function (zbEp, cId, callback) {
+    this.sendAfData = function (targetEp, afArg, callback) {  // cId and raw data are in afArg
+    this.sendGroupcastMsg = function (groupId, clusterId, cmdId, argInst, callback) {
+    this.sendBroadcastMsg = function (clusterId, cmdId, argInst, callback) {
+
+ZbEndpoint.prototype.enableZclSupport = function () {
+ZbEndpoint.prototype.send = function () {
+ZbEndpoint.prototype.bindClusterToZbCoord = function (cId, callback) {
+ZbEndpoint.prototype.bindClusterToZbLocalEp = function (localZbEp, cId, callback) {
+ZbEndpoint.prototype.save = function (epInfo, callback) {
+ZbEndpoint.prototype.update = function (epInfo, callback) {
+ZbEndpoint.prototype.isInDataBase = function (callback) {
+ZbEndpoint.prototype.syncZbClusters = function (callback) {
+ZbEndpoint.prototype.syncLocalZbClusters = function (zbApp, callback) {
+ZbEndpoint.prototype.loadClustersFromDb = function (callback) {
+ZbEndpoint.prototype.newZbCluster = function (argInst, callback) {
+ZbEndpoint.prototype.newTempZbCluster = function (argInst, callback) {
+ZbEndpoint.prototype.alarmResetReq = function (alarmCode, clusterId, callback) {
+
+
+function ZbCluster(cInfo) {
+ZbCluster.prototype.exportValidAttrs = function () {
+ZbCluster.prototype.readAttrs = function (attrIds, callback) {
+ZbCluster.prototype.addClusterCmd = function () {
+ZbCluster.prototype.plugFunc = function (cmdName, zclHeader) {
+ZbCluster.prototype.save = function (cInfo, callback) {
+ZbCluster.prototype.update = function (cInfo, callback) {
+ZbCluster.prototype.isInDataBase = function (callback) {
+ZbCluster.prototype.bindToCoord = function (callback) {
+
+
+function Zdo() {
+Zdo.prototype.nodeDescReq = function (argInstance, callback) {  // 'dstaddr', 'nwkaddrofinterest'
+Zdo.prototype.powerDescReq = function (argInstance, callback) {
+Zdo.prototype.simpleDescReq = function (argInstance, callback) {
+Zdo.prototype.activeEpReq = function (argInstance, callback) {
+Zdo.prototype.matchDescReq = function (argInstance, callback) {
+Zdo.prototype.complexDescReq = function (argInstance, callback) {
+Zdo.prototype.userDescReq = function (argInstance, callback) {
+Zdo.prototype.userDescSet = function (argInstance, callback) {    // USER_DESC_CONF
+Zdo.prototype.endDeviceBindReq = function (argInstance, callback) {
+Zdo.prototype.bindReq = function (argInstance, callback) {
+Zdo.prototype.unbindReq = function (argInstance, callback) {
+Zdo.prototype.mgmtLeaveReq = function (argInstance, callback) {
+Zdo.prototype.mgmtDirectJoinReq = function (argInstance, callback) {
+Zdo.prototype.mgmtPermitJoinRequest = function (argInstance, callback) {    // 'dstaddr', 'duration', 'tcsignificance'
+Zdo.prototype.nwkDiscoveryReq = function (argInstance, callback) {  // 'scanchannels', 'scanduration'
+Zdo.prototype.joinReq = function (argInstance, callback) {    // request the device to join itself to a parent device on a network
+Zdo.prototype.endDeviceAnnce = function (argInstance, callback) {   // 'nwkaddr', 'ieeeaddr', 'capability'
+Zdo.prototype.serverDiscReq = function (argInstance, callback) {    // broadcast, remote device may not response when no bits match in mask
+Zdo.prototype.setLinkKey = function (argInstance, callback) {
+Zdo.prototype.removeLinkKey = function (argInstance, callback) {
+Zdo.prototype.getLinkKey = function (argInstance, callback) {       // 'ieeeaddr'
+Zdo.prototype.mgmtNwkUpdateRequest = function (argInstance, callback) {   // no ZDP_MgmtNwkUpdateNotify implemented in MT, take it as SRSP
+Zdo.prototype.msgCbRegister = function (argInstance, callback) {    // 'clusterid'
+Zdo.prototype.msgCbRemove = function (argInstance, callback) {      // 'clusterid'
+Zdo.prototype.startupFromApp = function (argInstance, callback) {   // 'startdelay'
+Zdo.prototype.autoFindDestination = function (argInstance, callback) {    // Nothing back (broadcast). Issue a Match Description Request for the requested endpoint outputs
+Zdo.prototype.nwkAddrReq = function (argInstance, callback) {
+Zdo.prototype.ieeeAddrReq = function (argInstance, callback) {
+Zdo.prototype.mgmtNwkDiscReq = function (argInstance, callback) {   // 'dstaddr', 'scanchannels', 'scanduration', 'startindex'
+Zdo.prototype.mgmtLqiReq = function (argInstance, callback) {   // 'dstaddr', 'startindex'
+Zdo.prototype.mgmtRtgReq = function (argInstance, callback) {   // 'dstaddr', 'startindex'
+Zdo.prototype.mgmtBindReq = function (argInstance, callback) {  // 'dstaddr', 'startindex'
+
+function Zigger(path, option) {
+Zigger.prototype.start = function (zApp) {
+Zigger.prototype.callZpi = function (zpiName, argInstance, callback) {
+Zigger.prototype.newLocalApp = function (zbApp, callback) {
