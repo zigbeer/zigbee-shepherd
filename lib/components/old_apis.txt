@@ -105,3 +105,48 @@ function Zigger(path, option) {
 Zigger.prototype.start = function (zApp) {
 Zigger.prototype.callZpi = function (zpiName, argInstance, callback) {
 Zigger.prototype.newLocalApp = function (zbApp, callback) {
+
+
+// sys manager
+isSysEpRegistered()
+resetSysEpRegistered()
+setSysEpRegistered()
+
+softReset(cb)
+hardReset(cb)
+sleep()
+wakeup()
+getCoordInfo()
+retrieveDevInfo()
+execInitCmd()
+
+// nwk manager
+setNwkInfo(argInst, callback)
+getNwkInfo(cb)
+setPermitJoinTime(argInst, callback)
+getPermitJoinTime(callback)
+joinTimeCountdown(callback)
+
+retrieveNwkInfo(cb)
+retrieveSingleNwkInfo(param, callback)
+showNwkInfo(cb)
+getRoutingTable(argInst, callback)
+setPermitJoin(argInst, callback) 
+
+mtoRouteStart()	// TODO
+mtoRouteStop()	// TODO
+
+getNeighborTable(dstaddr, startindex, callback) // TODO
+getRoutingTable(dstaddr, startindex, callback)	// TODO
+
+
+changeKey(argInst, callback)
+getKey(argInst, callback)
+getDevList(addrObj, callback)
+
+devListMaintain(addrObj, callback)
+removeDevice(argInst, callback)
+setBindingEntry(argInst, callback)
+
+
+

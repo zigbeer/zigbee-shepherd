@@ -1,15 +1,19 @@
-In this libray, we need:
+In this library, we need:
 
-1. device box
-2. endpoint box
+1. shepherd: device box
+2. shepherd: endpoint box
 3. database to store devices and endpoints
 
 4. Coordinator class <-> it's a controller, distingushed from a remote device
     >> ccznp is the interface to coord
-    >> Zdo class <-> does not expose, integreated with Coordinator
+    >> Zdo class <-> does not expose, integreated with Coordinator <-> inherit
+    >> sys methods
+    >> nwk methods
 6. Device class
 7. Endpoint class -> like a Gadget, it's the major player
-8. Cluster class -> does not expose, attributes should be gathered (really needs a class? or is that ok with a data object)
+   -> foundation methods
+
+8. Cluster class -> does not expose, attributes should be gathered (really needs a class? or is that ok with a data object) -> Many attribute objects
 
 
 notes:
@@ -18,6 +22,16 @@ notes:
 2. read/write?
 
 function ZShepherd(coord) {
-    this.panId = undefined;
-    this.extPanId = undefined;
+    this._devbox = new ObjectBox();
+    this._epbox = new ObjectBox();
+    this.controller = coord;
+
+    this._net = {       // get from controller
+        panId: null,
+        extPanId: null,
+        address: {
+            ieee: '',
+            nwk: ''
+        }
+    };
 }
