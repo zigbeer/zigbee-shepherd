@@ -1,0 +1,75 @@
+// cieApp
+this.zbEp.emit('IAS:BYPASS', bypassresult);
+this.zbEp.emit('IAS:EMERGENCY');
+
+// devmgr
+afEventName = 'AF:INCOMING_MSG:' + zutil.convToHexString(targetDev.ieeeAddr, 'uint32') + ':' + zutil.convToHexString(targetEpId, 'uint8');
+msghub.emit(afEventName, msgobj.msg);
+
+if (coordDev) {
+    afEventNameForLocalEp = 'AF:INCOMING_MSG:' + zutil.convToHexString(coordDev.ieeeAddr, 'uint32') + ':' + zutil.convToHexString(msgobj.msg.dstendpoint, 'uint8');
+    msghub.emit(afEventNameForLocalEp, msgobj.msg);    
+}
+
+msghub.emit('DEVMGR:DEVICE_ANNCE_IND', { indType: 'DEV_NEW', info: devInfo });
+
+msghub.emit('ZDO:END_DEVICE_ANNCE_IND', {
+    srcaddr: deviceInfo.nwkAddr,
+    nwkaddr: deviceInfo.nwkAddr,
+    ieeeaddr: devSelf.ieeeAddr,
+    capabilities: {}
+});
+
+msghub.emit('DEVMGR:DEVICE_ANNCE_IND', { indType: 'DEV_UPDATE', info: devInfo });
+msghub.emit('EPMGR:COORD_EP_REG_IND', indMsg);
+msghub.emit('EPMGR:COORD_EP_REG_IND', { endpoint: endpointId });
+msghub.emit('EPMGR:COORD_EP_DEL_IND', { endpoint: endpointId });
+
+// epmgr
+msghub.emit('EPMGR:DEVICE_ANNCE_IND', { indType: 'EP_NEW', info: epInfo })
+
+if (isLocalEp) {    // for local ep
+    zclMsgForLoEp.zclMsg = zclMsg;
+    zbEpSelf.emit('ZCL_MSG:FOUNDATION', zclMsgForLoEp);
+}
+
+if (isLocalEp) {    // for local ep
+    zclMsgForLoEp.zclMsg = zclMsg;
+    zbEpSelf.emit('ZCL_MSG:FUNCTIONAL', zclMsgForLoEp);
+
+zclEventName = 'ZCL_MSG:FOUNDATION:' + zclCmdName;  // zcl msg received from client side of node clusters
+zclEventName = 'ZCL_MSG:FUNCTIONAL:' + zclCmdName.toUpperCase();
+
+// emit to remote-eps and local application eps, but not delegator ep
+if (!isLocalEp) {
+    hasListeners = zbEpSelf.emit(zclEventName, zclMsg.payload);  
+    if (!hasListeners) {
+        console.log(zclEventName);
+        zbEpSelf.emit('ZCL_MSG:UNHANDLED', zclMsg);
+        console.log('TODO: ZCL_MSG:UNHANDLED');
+        console.log(zclMsg);
+    }  
+}
+
+epSelf.emit('ZCL_CNF:UNHANDLED', cnfMsg);
+
+msghub.emit('EPMGR:DEVICE_ANNCE_IND', { indType: 'EP_UPDATE', info: epInfo });
+
+msghub.emit('EPMGR:DEVICE_ANNCE_IND', { indType: 'CLUSTER_NEW', info: cInfo });
+
+msghub.emit('EPMGR:DEVICE_ANNCE_IND', { indType: 'CLUSTER_UPDATE', info: cInfo });
+
+
+// nwkmgr
+msghub.emit('ZB_NWK_ZIGBEE_DEVICE_IND', { indType: type, info: deviceInfo });
+
+// sysmgr
+msghub.emit('ZDO:SIMPLE_DESC_RSP:' + zutil.convToHexString(deviceInfo.nwkAddr, 'uint16') + ':' + deviceInfo.epList[j], emptyEp);
+
+
+// zigger
+msghub.emit('COORD_INIT_DONE', nwkInfo);
+zigSelf.emit('ZB_NWK_ZIGBEE_DEVICE_IND', { indType: 'DEV_EP_REG', info: indMsg });
+zigSelf.emit('ZB_NWK_ZIGBEE_DEVICE_IND', indMsg);
+zigSelf.emit('ZB_NWK_ZIGBEE_DEVICE_IND', indMsg);
+zigSelf.emit('ZB_NWK_ZIGBEE_DEVICE_IND', { indType: 'DEV_LEAVE', info: devRemoved.info });
