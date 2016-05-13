@@ -1,24 +1,12 @@
 zbEndpoint.on('ZCL_MSG:UNHANDLED', this.onUnhandledMsg);
 zbEndpoint.on('ZCL_CNF:UNHANDLED', this.onUnhandledMsg);
 
-afMsgEventName = 'AF:INCOMING_MSG:' + zutil.convToHexString(this.ownerDevice.ieeeAddr, 'uint32') + ':' + zutil.convToHexString(this.endpointId, 'uint8');
-
-msghub.on(afMsgEventName, function (msg) {
-
-local endpoint
-afCnfEventName = 'AF:DATA_CONFIRM:' + zutil.convToHexString(epSelf.endpointId , 'uint8'),
-msghub.on(afCnfEventName, function (cnfMsg) {
-
 localEp.on('ZCL_MSG:FOUNDATION', function (zclMsgForLoEp) {
     handleZclFoundationMsg(epSelf, zclMsgForLoEp);
 });
 localEp.on('ZCL_MSG:FUNCTIONAL', function (zclMsgForLoEp) {
     handleZclFunctionalMsg(epSelf, zclMsgForLoEp);
 });
-
-// sysmgr
-notActiveEpEventName = notActiveEpEventName.concat('ZDO:STATE_CHANGE_IND:', zutil.convToHexString(nwkaddr, 'uint16'), ':NOT_ACTIVE');
-msghub.on(notActiveEpEventName, epRspCountUp);
 
 // zApp
 msghub.on('ZDO:TC_DEVICE_IND', function (msg) {
