@@ -1,0 +1,23 @@
+{
+  "name": "zigbee-shepherd",
+  "version": "0.0.1",
+  "description": "zigbee-shepherd is a network controller for ZigBee devices.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zigbeer/zigbee-shepherd.git"
+  },
+  "keywords": [
+    "zigbee",
+    "cc253x"
+  ],
+  "author": "Jack Wu <jackchased@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/zigbeer/zigbee-shepherd/issues"
+  },
+  "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme"
+}
