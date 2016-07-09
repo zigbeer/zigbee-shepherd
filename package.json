@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme",
   "dependencies": {
-    "areq": "^0.0.5",
+    "areq": "^0.0.6",
     "busyman": "^0.1.1",
     "q": "^1.4.1",
     "zcl-packet": "^0.0.1",
@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^2.5.3"
+    "mocha": "^2.5.3",
+    "sinon": "^1.17.4"
   }
 }
