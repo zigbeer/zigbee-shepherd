@@ -35,6 +35,7 @@
     "busyman": "^0.1.1",
     "cc-znp": "0.0.8",
     "q": "^1.4.1",
+    "zcl-id": "0.0.4",
     "zcl-packet": "^0.0.1",
     "zstack-constants": "^0.0.6"
   },
