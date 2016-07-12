@@ -84,7 +84,6 @@ controller.nextTransId = function () {
 
 controller.request = function (subsys, cmdId, valObj, callback) {
     var deferred = Q.defer();
-    // callback(null, );
     process.nextTick(function () {
         deferred.resolve({ status: 0 });
     });
@@ -114,21 +113,25 @@ function fireFakeCnf(status, epid, transid) {
 }
 
 function fireFakeZclRsp(dstNwkAddr, dstEpId, srcEpId, zclData) {
-    // var afZclEvent = 'ZCL:incomingMsg:' + dstNwkAddr + ':' + dstEpId + ':';
-
-    // if (srcEpId === null || srcEpId === undefined) {
-    //     afZclEvent = afZclEvent + seq;
-    // } else {
-    //     afZclEvent = afZclEvent + srcEpId + ':' + seq;
-    // }
-
-    // console.log(afZclEvent);
     setTimeout(function () {
         controller.emit('ZCL:incomingMsg', {
             srcaddr: dstNwkAddr,
             srcendpoint: dstEpId,
             dstendpoint: srcEpId || loEp1.getEpId(),
             zclMsg: zclData
+        });
+    });
+}
+
+function fireFakeZclRawRsp(dstNwkAddr, dstEpId, srcEpId, zclBuffer, cid) {
+    // msg: { groupid, clusterid, srcaddr, srcendpoint, dstendpoint, wasbroadcast, linkquality, securityuse, timestamp, transseqnumber, len, data }
+    setTimeout(function () {
+        controller.emit('AF:incomingMsg', {
+            srcaddr: dstNwkAddr,
+            srcendpoint: dstEpId,
+            dstendpoint: srcEpId || loEp1.getEpId(),
+            clusterid: cid || 0,
+            data: zclBuffer
         });
     });
 }
@@ -449,12 +452,12 @@ describe('APIs Arguments Check for Throwing Error', function() {
             expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], 'x', function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], 1, function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], [], function () {}); }).to.throw(TypeError);
-            expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], NaN, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], null, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], undefined, function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], true, function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], function () {}, function () {}); }).to.throw(TypeError);
 
+            expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], NaN, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], null, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], undefined, function () {}); }).not.to.throw(TypeError);
             expect(function () { return af.zclFoundation(rmEp1, rmEp1, 3, 'read', [], {}, function () {}); }).not.to.throw(TypeError);
         });
     });
@@ -532,13 +535,92 @@ describe('APIs Arguments Check for Throwing Error', function() {
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, 'x', function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, 1, function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, [], function () {}); }).to.throw(TypeError);
-            expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, NaN, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, null, function () {}); }).to.throw(TypeError);
-            expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, undefined, function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, true, function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, function () {}, function () {}); }).to.throw(TypeError);
 
+            expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, NaN, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, null, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, undefined, function () {}); }).not.to.throw(TypeError);
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', {}, {}, function () {}); }).not.to.throw(TypeError);
+        });
+    });
+
+    describe('#.zclClusterAttrIdsReq', function() {
+        it('Throw TypeError if dstEp is not an Instance of Endpoint or Coordpoint class', function () {
+            expect(function () { return af.zclClusterAttrIdsReq('x', 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(1, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq([], 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq({}, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(null, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(true, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(undefined, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(new Date(), 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(function () {}, 'genScenes', function () {}); }).to.throw(TypeError);
+
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, 5, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, 'genScenes', function () {}); }).not.to.throw(TypeError);
+        });
+    
+        it('Throw TypeError if cId is not a string or a number', function () {
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, [], function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, {}, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, NaN, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, null, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, undefined, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, true, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, new Date(), function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, function () {}, function () {}); }).to.throw(TypeError);
+
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, 5, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrIdsReq(rmEp1, 'genScenes', function () {}); }).not.to.throw(TypeError);
+        });
+    });
+
+    describe('#.zclClusterAttrsReq', function() {
+        it('Throw TypeError if dstEp is not an Instance of Endpoint or Coordpoint class', function () {
+            expect(function () { return af.zclClusterAttrsReq('x', 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(1, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq([], 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq({}, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(null, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(true, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(undefined, 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(new Date(), 'genScenes', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(function () {}, 'genScenes', function () {}); }).to.throw(TypeError);
+
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, 5, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, 'genScenes', function () {}); }).not.to.throw(TypeError);
+        });
+
+        it('Throw TypeError if cId is not a string or a number', function () {
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, [], function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, {}, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, NaN, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, null, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, undefined, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, true, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, new Date(), function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, function () {}, function () {}); }).to.throw(TypeError);
+
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, 5, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclClusterAttrsReq(rmEp1, 'genScenes', function () {}); }).not.to.throw(TypeError);
+        });
+    });
+
+    describe('#.zclClustersReq', function() {
+        it('Throw TypeError if dstEp is not an Instance of Endpoint or Coordpoint class', function () {
+            expect(function () { return af.zclClustersReq('x', function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq(1, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq([], function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq({}, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq(null, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq(true, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq(undefined, function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq(new Date(), function () {}); }).to.throw(TypeError);
+            expect(function () { return af.zclClustersReq(function () {}, function () {}); }).to.throw(TypeError);
+
+            expect(function () { return af.zclClustersReq(rmEp1, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return af.zclClustersReq(rmEp1, function () {}); }).not.to.throw(TypeError);
         });
     });
 });
@@ -1032,9 +1114,6 @@ describe('Module Methods Check', function() {
     });
 
     describe('#.zclFoundation - by delegator', function() {
-        // fireFakeZclRsp(dstNwkAddr, dstEpId, srcEpId, seq) 
-        // af.zclFoundation(srcEp, dstEp, cId, cmd, zclData, cfg, callback);
-
         it('zcl good send', function (done) {
             var fakeZclMsg;
             af.zclFoundation(rmEp1, rmEp1, 3, 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], function (err, zclMsg) {
@@ -1047,7 +1126,7 @@ describe('Module Methods Check', function() {
                 frameCntl: {
                     frameType: 0,  // Command acts across the entire profile (foundation)
                     manufSpec: 0,
-                    direction: 0,
+                    direction: 1,
                     disDefaultRsp: 0
                 }
             };
@@ -1071,11 +1150,9 @@ describe('Module Methods Check', function() {
     });
 
     describe('#.zclFoundation - by loEp8', function() {
-        // fireFakeZclRsp(dstNwkAddr, dstEpId, srcEpId, zclData) 
-        // af.zclFoundation(srcEp, dstEp, cId, cmd, zclData, cfg, callback);
         it('zcl good send', function (done) {
             var fakeZclMsg;
-            af.zclFoundation(loEp8, rmEp1, 3, 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], { direction: 1 }, function (err, zclMsg) {
+            af.zclFoundation(loEp8, rmEp1, 3, 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], { direction: 0 }, function (err, zclMsg) {
                 if (!err && (zclMsg === fakeZclMsg))
                     done();
             });
@@ -1085,7 +1162,7 @@ describe('Module Methods Check', function() {
                 frameCntl: {
                     frameType: 0,  // Command acts across the entire profile (foundation)
                     manufSpec: 0,
-                    direction: 0,
+                    direction: 1,
                     disDefaultRsp: 0
                 }
             };
@@ -1096,7 +1173,7 @@ describe('Module Methods Check', function() {
 
         it('zcl good send - rsp, no listen', function (done) {
             var fakeZclMsg;
-            af.zclFoundation(loEp8, rmEp1, 3, 'readRsp', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], { direction: 0 }, function (err, msg) {
+            af.zclFoundation(loEp8, rmEp1, 3, 'readRsp', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], { direction: 1 }, function (err, msg) {
                 if (!err && (msg.status === 0))
                     done();
             });
@@ -1120,13 +1197,9 @@ describe('Module Methods Check', function() {
     });
 
     describe('#.zclFunctional - by delegator', function() {
-        // fireFakeZclRsp(dstNwkAddr, dstEpId, srcEpId, seq) 
-        // af.zclFoundation(srcEp, dstEp, cId, cmd, zclData, cfg, callback);
-
         it('zcl good send', function (done) {
             var fakeZclMsg;
 
-            // [TODO] why direction casuing error? DEAD here!!!
             af.zclFunctional(rmEp1, rmEp1, 5, 'removeAll', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
                 if (!err && (zclMsg === fakeZclMsg))
                     done();
@@ -1135,9 +1208,9 @@ describe('Module Methods Check', function() {
             fakeZclMsg = {
                 seqNum: af._seq,
                 frameCntl: {
-                    frameType: 1,  // Command acts across the entire profile (foundation)
+                    frameType: 1,
                     manufSpec: 0,
-                    direction: 0,
+                    direction: 1,
                     disDefaultRsp: 0
                 }
             };
@@ -1145,20 +1218,285 @@ describe('Module Methods Check', function() {
             fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
         });
 
-        // it('zcl bad send - unkown cId', function (done) {
-        //     af.zclFoundation(rmEp1, rmEp1, 'xxx', 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], function (err, zclMsg) {
-        //         if (err)
-        //             done();
-        //     });
-        // });
+        it('zcl bad send - unkown cId', function (done) {
+            af.zclFunctional(rmEp1, rmEp1, 'xxx', 'removeAll', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
+                if (err)
+                    done();
+            });
+        });
 
-        // it('zcl bad send - unkown cmd', function (done) {
-        //     af.zclFoundation(rmEp1, rmEp1, 3, 'read333', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], function (err, zclMsg) {
-        //         if (err)
-        //             done();
-        //     });
-        // });
+        it('zcl bad send - unkown cmd', function (done) {
+            af.zclFunctional(rmEp1, rmEp1, 5, 'removeAllxxx', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
+                if (err)
+                    done();
+            });
+        });
     });
 
+    describe('#.zclFunctional - by loEp8', function() {
+        it('zcl good send', function (done) {
+            var fakeZclMsg;
+
+            af.zclFunctional(loEp8, rmEp1, 5, 'removeAll', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
+                if (!err && (zclMsg === fakeZclMsg))
+                    done();
+            });
+
+            fakeZclMsg = {
+                seqNum: af._seq,
+                frameCntl: {
+                    frameType: 1,
+                    manufSpec: 0,
+                    direction: 1,
+                    disDefaultRsp: 0
+                }
+            };
+
+            fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), loEp8.getEpId(), fakeZclMsg);
+        });
+
+
+        it('zcl good send - rsp, no listen', function (done) {
+            var fakeZclMsg;
+
+            af.zclFunctional(loEp8, rmEp1, 5, 'removeAllRsp', { status: 0, groupid: 1 }, { direction: 1 }, function (err, zclMsg) {
+                if (!err )
+                    done();
+            });
+
+            fireFakeCnf(0, loEp8.getEpId(), transId);
+        });
+
+        it('zcl bad send - unkown cId', function (done) {
+            af.zclFunctional(loEp8, rmEp1, 'xxx', 'removeAll', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
+                if (err)
+                    done();
+            });
+        });
+
+        it('zcl bad send - unkown cmd', function (done) {
+            af.zclFunctional(loEp8, rmEp1, 5, 'removeAllxxx', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
+                if (err)
+                    done();
+            });
+        });
+    });
+
+    describe('#.zclFoundation - by delegator - rawZclRsp', function() {
+        it('zcl good send', function (done) {
+            var fakeZclRaw;
+            af.zclFoundation(rmEp1, rmEp1, 3, 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], function (err, zclMsg) {
+                if (!err)
+                    done();
+            });
+
+            fakeZclRaw = new Buffer([ 8, af._seq, 0, 10, 10]);
+            fireFakeZclRawRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclRaw);
+        });
+    });
+
+    describe('#.zclFoundation - by loEp8', function() {
+        it('zcl good send', function (done) {
+            var fakeZclRaw;
+            af.zclFoundation(loEp8, rmEp1, 3, 'read', [ { attrId: 0 }, { attrId: 1 }, { attrId: 3 } ], { direction: 0 }, function (err, zclMsg) {
+                if (!err)
+                    done();
+            });
+
+            fakeZclRaw = new Buffer([ 8, af._seq, 0, 10, 10]);
+            fireFakeZclRawRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), loEp8.getEpId(), fakeZclRaw);
+        });
+    });
+
+    describe('#.zclFunctional - by delegator', function() {
+        it('zcl good send', function (done) {
+            var fakeZclRaw;
+
+            af.zclFunctional(rmEp1, rmEp1, 5, 'removeAll', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
+                if (!err)
+                    done();
+            });
+
+            fakeZclRaw = new Buffer([ 9, af._seq, 3, 10, 10, 10]);
+            fireFakeZclRawRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclRaw, 5);
+        });
+    });
+
+    describe('#.zclFunctional - by loEp8', function() {
+        it('zcl good send', function (done) {
+            var fakeZclRaw;
+
+            af.zclFunctional(loEp8, rmEp1, 5, 'removeAll', { groupid: 1 }, { direction: 0 }, function (err, zclMsg) {
+                if (!err)
+                    done();
+            });
+            fakeZclRaw = new Buffer([ 9, af._seq, 3, 10, 10, 10]);
+            fireFakeZclRawRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), loEp8.getEpId(), fakeZclRaw, 5);
+        });
+    });
+
+
+    describe('#.zclClusterAttrIdsReq', function() {
+        it('zcl good send - only 1 rsp', function (done) {
+            var fakeZclMsg;
+            af.zclClusterAttrIdsReq(rmEp1, 6, function (err, rsp) {
+                if (!err)
+                    done();
+            });
+
+            fakeZclMsg = {
+                seqNum: af._seq,
+                frameCntl: {
+                    frameType: 0,  // Command acts across the entire profile (foundation)
+                    manufSpec: 0,
+                    direction: 1,
+                    disDefaultRsp: 0
+                },
+                payload: {
+                    discComplete: 1,
+                    attrInfos: [ { attrId: 1, dataType: 0 } ]
+                }
+            };
+
+            fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+        });
+
+
+        it('zcl good send - 3 rsps', function (done) {
+            var fakeZclMsg,
+                seqNum1,
+                seqNum2,
+                seqNum3;
+
+            af.zclClusterAttrIdsReq(rmEp1, 6, function (err, rsp) {
+                if (!err)
+                    done();
+            });
+
+            seqNum1 = af._seq;
+            seqNum2 = af._seq + 1;
+            seqNum3 = af._seq + 2;
+
+            fakeZclMsg = {
+                seqNum: seqNum1,
+                frameCntl: {
+                    frameType: 0,  // Command acts across the entire profile (foundation)
+                    manufSpec: 0,
+                    direction: 1,
+                    disDefaultRsp: 0
+                },
+                payload: {
+                    discComplete: 0,
+                    attrInfos: [ { attrId: 1, dataType: 0 } ]
+                }
+            };
+
+            fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+
+            setTimeout(function () {
+                fakeZclMsg.seqNum = seqNum2;
+                fakeZclMsg.payload.attrInfos = [ { attrId: 2, dataType: 0 }, { attrId: 3, dataType: 0 } ];
+                fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+            }, 20);
+
+            setTimeout(function () {
+                fakeZclMsg.seqNum = seqNum3;
+                fakeZclMsg.payload.discComplete = 1;
+                fakeZclMsg.payload.attrInfos = [ { attrId: 6, dataType: 0 }, { attrId: 7, dataType: 0 }, { attrId: 18, dataType: 0 } ];
+                fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+            }, 40);
+        });
+    });
+
+
+    describe('#.zclClusterAttrsReq', function() {
+        it('zcl good send - only 1 rsp', function (done) {
+            var fakeZclMsg;
+            af.zclClusterAttrsReq(rmEp1, 6, function (err, rsp) {
+                if (!err)
+                    done();
+            });
+
+            fakeZclMsg = {
+                seqNum: af._seq,
+                frameCntl: {
+                    frameType: 0,  // Command acts across the entire profile (foundation)
+                    manufSpec: 0,
+                    direction: 1,
+                    disDefaultRsp: 0
+                },
+                payload: {
+                    discComplete: 1,
+                    attrInfos: [ { attrId: 16384, dataType: 0 }, { attrId: 16385, dataType: 0 } ]
+                }
+            };
+            var seqNum2 = af._seq + 1;
+
+            fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+            setTimeout(function () {
+                fakeZclMsg.seqNum = seqNum2;
+                fakeZclMsg.payload = [ { attrId: 16384, status: 0, dataType: 0, attrData: 10 }, { attrId: 16385, status: 0, dataType: 0, attrData: 110 } ];
+                // { attrId, status , dataType, attrData }
+                fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+            }, 20);
+        });
+
+
+        it('zcl good send - 3 rsps', function (done) {
+            var fakeZclMsg,
+                seqNum1,
+                seqNum2,
+                seqNum3;
+
+            af.zclClusterAttrsReq(rmEp1, 6, function (err, rsp) {
+                if (!err)
+                    done();
+            });
+
+            seqNum1 = af._seq;
+            seqNum2 = af._seq + 1;
+            seqNum3 = af._seq + 2;
+            seqNum4 = af._seq + 3;
+
+            fakeZclMsg = {
+                seqNum: seqNum1,
+                frameCntl: {
+                    frameType: 0,  // Command acts across the entire profile (foundation)
+                    manufSpec: 0,
+                    direction: 1,
+                    disDefaultRsp: 0
+                },
+                payload: {
+                    discComplete: 0,
+                    attrInfos: [ { attrId: 0, dataType: 0 } ]
+                }
+            };
+
+            fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+
+            setTimeout(function () {
+                fakeZclMsg.seqNum = seqNum2;
+                fakeZclMsg.payload.attrInfos = [ { attrId: 16384, dataType: 0 }, { attrId: 16385, dataType: 0 } ];
+                fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+            }, 20);
+
+            setTimeout(function () {
+                fakeZclMsg.seqNum = seqNum3;
+                fakeZclMsg.payload.discComplete = 1;
+                fakeZclMsg.payload.attrInfos = [ { attrId: 16386, dataType: 0 } ];
+                fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+            }, 40);
+
+            setTimeout(function () {
+                fakeZclMsg.seqNum = seqNum4;
+                fakeZclMsg.payload = [
+                    { attrId: 0, status: 0, dataType: 0, attrData: 'hi' }, { attrId: 16384, status: 0, dataType: 0, attrData: 10 },
+                    { attrId: 16385, status: 0, dataType: 0, attrData: 110 }, { attrId: 16386, status: 0, dataType: 0, attrData: 'hello' }
+                ];
+                // { attrId, status , dataType, attrData }
+                fireFakeZclRsp(rmEp1.getNwkAddr(), rmEp1.getEpId(), null, fakeZclMsg);
+            }, 60);
+        });
+    });
 });
 
