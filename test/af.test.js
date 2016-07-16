@@ -1498,5 +1498,82 @@ describe('Module Methods Check', function() {
             }, 60);
         });
     });
+
+    describe('#.zclClustersReq', function() {
+       it('should resove for sequentially requests', function (done) {
+            var rmEp1GetClusterListStub = sinon.stub(rmEp1, 'getClusterList').returns([ 1, 2, 3, 4, 5 ]),
+                rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
+                rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
+
+            var requestStub = sinon.stub(af, 'zclClusterAttrsReq', function (dstEp, cId, callback) {
+                    var deferred = Q.defer();
+                    setTimeout(function () {
+                        deferred.resolve({
+                            x1: { value: 'hello' },
+                            x2: { value: 'world' }
+                        });
+                    }, 10);
+                    return deferred.promise.nodeify(callback);
+            });
+
+            af.zclClustersReq(rmEp1, function (err, data) {
+                rmEp1GetClusterListStub.restore();
+                rmEp1GetInClusterListStub.restore();
+                rmEp1GetOutClusterListStub.restore();
+                requestStub.restore();
+
+                var good = false;
+                if (data.genPowerCfg.dir === 3 && data.genPowerCfg.attrs.x1.value === 'hello' && data.genPowerCfg.attrs.x2.value === 'world' )
+                    good = true;
+
+                if (data.genDeviceTempCfg.dir === 1 && data.genDeviceTempCfg.attrs.x1.value === 'hello' && data.genDeviceTempCfg.attrs.x2.value === 'world' )
+                    good = good && true;
+
+                if (data.genIdentify.dir === 3 && data.genIdentify.attrs.x1.value === 'hello' && data.genIdentify.attrs.x2.value === 'world' )
+                    good = good && true;
+
+                if (data.genGroups.dir === 2 && data.genGroups.attrs.x1.value === 'hello' && data.genGroups.attrs.x2.value === 'world' )
+                    good = good && true;
+
+                if (data.genScenes.dir === 2 && data.genScenes.attrs.x1.value === 'hello' && data.genScenes.attrs.x2.value === 'world' )
+                    good = good && true;
+
+                if (good)
+                    done();
+            });
+       });
+
+       it('should reject for sequentially requests when receiver bad', function (done) {
+            var rmEp1GetClusterListStub = sinon.stub(rmEp1, 'getClusterList').returns([ 1, 2, 3, 4, 5 ]),
+                rmEp1GetInClusterListStub = sinon.stub(rmEp1, 'getInClusterList').returns([ 1, 2, 3 ]),
+                rmEp1GetOutClusterListStub = sinon.stub(rmEp1, 'getOutClusterList').returns([ 1, 3, 4, 5 ]);
+
+            var requestStub = sinon.stub(af, 'zclClusterAttrsReq', function (dstEp, cId, callback) {
+                    var deferred = Q.defer();
+                    setTimeout(function () {
+                        if (cId !== 3) {
+                            deferred.resolve({
+                                x1: { value: 'hello' },
+                                x2: { value: 'world' }
+                            });
+                        } else {
+                            deferred.reject(new Error('TEST ERROR'));
+                        }
+
+                    }, 10);
+                    return deferred.promise.nodeify(callback);
+            });
+
+            af.zclClustersReq(rmEp1, function (err, data) {
+                rmEp1GetClusterListStub.restore();
+                rmEp1GetInClusterListStub.restore();
+                rmEp1GetOutClusterListStub.restore();
+                requestStub.restore();
+
+                if (err)
+                    done();
+            });
+       });
+    });
 });
 
