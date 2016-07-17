@@ -33,7 +33,8 @@
   "dependencies": {
     "areq": "^0.0.6",
     "busyman": "^0.1.1",
-    "cc-znp": "0.0.8",
+    "cc-znp": "0.0.9",
+    "objectbox": "0.0.8",
     "q": "^1.4.1",
     "zcl-id": "0.0.4",
     "zcl-packet": "^0.0.1",
