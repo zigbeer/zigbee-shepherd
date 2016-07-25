@@ -31,7 +31,7 @@
   },
   "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme",
   "dependencies": {
-    "areq": "^0.0.6",
+    "areq": "^0.0.9",
     "busyman": "^0.1.1",
     "cc-znp": "0.0.9",
     "objectbox": "0.0.8",
