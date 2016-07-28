@@ -41,7 +41,7 @@
 <a name="APIs"></a>
 ## 4. APIs  
 
-* [new ZigbeeShepherd()](#API_ZigbeeShepherd) 
+* [new ZigbeeShepherd()](#API_ZigbeeShepherd)  
 * [.start()](#API_start)  
 * [.stop()](#API_stop)  
 * [.reset()](#API_reset)  
@@ -245,12 +245,12 @@ Exposed by `require('zigbee-shepherd')`
 <br />
 
 <a name="API_remove"></a>
-### .remove(dev, cfg[, callback])
+### .remove(dev[, cfg][, callback])
 
 **Arguments:**  
 
 1. `dev` (_Object_): device.  
-2. `cfg` (_Object_): This value-object has two properties `path` and `options`  
+2. `cfg` (_Object_): This value-object has two properties `rejoin` and `rmchildren`  
     - `rejoin` (_Boolean_):  
     - `rmchildren` (_Boolean_):  
 3. `callback` (_Function_): `function (err, rsp) { }`.  
@@ -266,10 +266,23 @@ Exposed by `require('zigbee-shepherd')`
 <a name="Events"></a>
 ## 5. Events  
 
+* [permitJoin](#EVT_permitJoin)  
 * [ind](#EVT_ind)  
 * [zdo](#EVT_zdo)  
 
 <br />
+
+*************************************************
+<br />
+
+<a name="EVT_permitJoin"></a>
+### .on('permitJoin', funciton (time) {})
+
+*************************************************
+<br />
+
+<a name="EVT_ind"></a>
+### .on('ind', funciton (msg) {})
 
 * ##### devIncoming  
 
@@ -290,6 +303,166 @@ Exposed by `require('zigbee-shepherd')`
 
     * msg.type: `'devOffline'`  
     * msg.data: `'0x00124b0001ce3631'`  
+
+*************************************************
+<br />
+
+<a name="EVT_zdo"></a>
+### .on('zdo', funciton (msg) {})
+
+
+*************************************************
+<br />
+
+## Device Class
+
+* [.getEndpoint()](#API_getEndpoint)  
+* [.getIeeeAddr()](#API_getIeeeAddr)  
+* [.getNwkAddr()](#API_getNwkAddr)  
+* [.dump()](#API_dump)  
+
+*************************************************
+<br />
+
+<a name="API_getEndpoint"></a>
+### .getEndpoint(epId)
+
+**Arguments:**  
+
+1. `epId` (_Object_): endpoint Id.  
+
+**Returns:**  
+
+* (_Object_): endpoint. Returns `undefined` if not found.  
+
+**Examples:**  
+
+*************************************************
+<br />
+
+<a name="API_getIeeeAddr"></a>
+### .getIeeeAddr()
+
+**Arguments:**  
+
+1. none  
+
+**Returns:**  
+
+* (_String_): Ieee Address.  
+
+**Examples:**  
+
+*************************************************
+<br />
+
+<a name="API_getNwkAddr"></a>
+### .getNwkAddr()
+
+**Arguments:**  
+
+1. none  
+
+**Returns:**  
+
+* (_Number_): Network Address.  
+
+**Examples:**  
+
+*************************************************
+<br />
+
+<a name="API_dump"></a>
+### .dump()
+
+**Arguments:**  
+
+1. none  
+
+**Returns:**  
+
+* (_Object_):  A data object of device record.  
+
+**Examples:**  
+
+```js
+    {
+        id: 2,
+        type: 'Router',
+        ieeeAddr: '0x00124b0001ce4beb',
+        nwkAddr: 55688,
+        status: 'online',
+        joinTime: 1469528238,
+        manufId: 0,
+        epList: [ 8 ],
+        endpoints: {
+            '8': {
+                profId: 260,
+                epId: 8,
+                devId: 0,
+                inClusterList: [ 0, 3 ],
+                outClusterList: [ 3, 6 ],
+                clusters: {
+                    'genBasic': {
+                        dir: 1,
+                        attrs: {
+                            'hwVersion': { value: 0 },
+                            'manufacturerName': { value: "TexasInstruments" },
+                        }
+                    },
+                    'genIdentify': {
+                        dir: 3,
+                        attrs: {
+                            'identifyTime': { value: 0 }
+                        }
+                    },
+                    'genOnOff': {
+                        dir:2,
+                        attrs: {
+                            'onOff': { value: 0 }
+                        }
+                    }
+                }
+            }
+        }
+    }
+```
+
+*************************************************
+
+<br />
+
+## Endpoint Class
+
+* [.getDevice()](#API_getDevice)  
+* [.getProfId()](#API_getProfId)  
+* [.getEpId()](#API_getEpId)  
+* [.getDevId()](#API_getDevId)  
+* [.getInClusterList()](#API_getInClusterList)  
+* [.getOutClusterList()](#API_getOutClusterList)  
+* [.getIeeeAddr()](#API_getIeeeAddr)  
+* [.getNwkAddr()](#API_getNwkAddr)  
+* [.foundation()](#API_foundation)  
+* [.functional()](#API_functional)  
+* [.dump()](#API_dump)  
+
+*************************************************
+<br />
+
+<a name="API_getDevice"></a>
+### .getDevice()
+
+**Arguments:**  
+
+1. none  
+
+**Returns:**  
+
+* (_Object_): device.  
+
+**Examples:**  
+
+<br />
 
 <br />
 
