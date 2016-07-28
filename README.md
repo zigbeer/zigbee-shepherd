@@ -41,37 +41,39 @@
 <a name="APIs"></a>
 ## 4. APIs  
 
-* [new ZigbeeShepherd()](#API_ZigbeeShepherd)  
+* [new ZShepherd()](#API_ZShepherd)  
 * [.start()](#API_start)  
 * [.stop()](#API_stop)  
 * [.reset()](#API_reset)  
-* [.permitjoin()](#API_permitjoin)  
-* [.registerZApp()](#API_registerZApp)  
-* [.listDevices()](#API_listDevices)  
+* [.permitJoin()](#API_permitJoin)  
+* [.mount()](#API_mount)  
+* [.list()](#API_list)  
 * [.find()](#API_find)  
-* [.bind()](#API_bind)  
-* [.unbind()](#API_unbind)  
+* [.lqi()](#API_lqi)  
 * [.remove()](#API_remove)  
 
 *************************************************
 <br />
 
-## ZigbeeShepherd Class
+## ZShepherd Class
 Exposed by `require('zigbee-shepherd')`  
 
 *************************************************
 <br />
 
-<a name="API_ZigbeeShepherd"></a>
-### new ZigbeeShepherd(cfg)
+<a name="API_ZShepherd"></a>
+### new ZShepherd(path[, opts])
 
 **Arguments:**  
 
-1. `cfg` (_Object_): This value-object has two properties `path` and `options` to configure the serial port.  
-    - `path`: A string that refers to the serial port system path, e.g., `'/dev/ttyUSB0'`  
-    - `options`: An object to set up the [seiralport](https://www.npmjs.com/package/serialport#serialport-path-options-opencallback).  
+1. `path` (_String_):  
+2. `opts` (_Object_):  
+    - `sp` (_Object_):  
+    - `net` (_Object_):  
 
 **Returns:**  
+
+* (_Object_)  
 
 **Examples:**  
 
@@ -79,14 +81,15 @@ Exposed by `require('zigbee-shepherd')`
 <br />
 
 <a name="API_start"></a>
-### .start(app[, callback])
+### .start([callback])
 
 **Arguments:**  
 
-1. `app` (_Function_): App which will be called after initialization completes.  
-2. `callback` (_Function_): `function (err) { }`. Get called after the initializing procedure is done.  
+2. `callback` (_Function_): `function (err) { }`.  
 
 **Returns:**  
+
+* _none_  
 
 **Examples:**  
 
@@ -98,9 +101,11 @@ Exposed by `require('zigbee-shepherd')`
 
 **Arguments:**  
 
-1. `callback` (_Function_): `function (err) { }`. Get called when stop to running.  
+1. `callback` (_Function_): `function (err) { }`.  
 
 **Returns:**  
+
+* _none_  
 
 **Examples:**  
 
@@ -113,54 +118,62 @@ Exposed by `require('zigbee-shepherd')`
 **Arguments:**  
 
 1. `mode` (_String_ | _Number_): hard reset `'hard'` or `0`, soft reset `'soft'` or `1`.  
-2. `callback` (_Function_): `function (err) { }`. Get called when reset completes.  
+2. `callback` (_Function_): `function (err) { }`.  
 
 **Returns:**  
+
+* _none_  
 
 **Examples:**  
 
 *************************************************
 <br />
 
-<a name="API_permitjoin"></a>
-### .permitjoin(type, time[, callback])
+<a name="API_permitJoin"></a>
+### .permitJoin(time[, type][, callback])
 
 **Arguments:**  
 
-1. `type` (_String_ | _Number_): coord `'coord'` or `0`, coord and routers `'all'` or `1`  
 2. `time` (_Number_): Jointime. Range from  0 to 255.  
-3. `callback` (_Function_): `function (err, rsp) { }`.  
+1. `type` (_String_ | _Number_): coord `'coord'` or `0`, coord and routers `'all'` or `1`  (default 'all')
+3. `callback` (_Function_): `function (err) { }`.  
 
 **Returns:**  
+
+* _none_  
 
 **Examples:**  
 
 *************************************************
 <br />
 
-<a name="API_registerZApp"></a>
-### .registerZApp(zApp, callback)
+<a name="API_mount"></a>
+### .mount(zApp, callback)
 
 **Arguments:**  
 
 1. `zApp` (_Object_): instance of Zive class.  
-2. `callback` (_Function_): `function (err, zApp) { }`.  
+2. `callback` (_Function_): `function (err, epId) { }`.  
 
 **Returns:**  
+
+* _none_  
 
 **Examples:**  
 
 *************************************************
 <br />
 
-<a name="API_listDevices"></a>
-### .listDevices()
+<a name="API_list"></a>
+### .list([ieeeAddrs])
 
 **Arguments:**  
 
-1. none  
+1. `ieeeAddrs` (_Array_):  
 
 **Returns:**  
+
+* (_Array_):  
 
 **Examples:**  
 
@@ -174,7 +187,6 @@ Exposed by `require('zigbee-shepherd')`
         joinTime: 1469528238,
         manufId: 0,
         epList: [ 8 ],
-        endpoints: { '8': { profId: 'HA', devId: 'onOffLight' } }
     },
     {
         type: 'EndDevice',
@@ -184,7 +196,6 @@ Exposed by `require('zigbee-shepherd')`
         joinTime: 1469528238,
         manufId: 0,
         epList: [ 8 ],
-        endpoints: { '8': { profId: 'HA', devId: 'onOffSwitch' } }
     }
 ]
 ```
@@ -193,51 +204,33 @@ Exposed by `require('zigbee-shepherd')`
 <br />
 
 <a name="API_find"></a>
-### .find(ieeeAddr)
+### .find(addr, epId)
 
 **Arguments:**  
 
-1. `ieeeAddr` (_String_): Ieee Address, `'0x00124b0001ce3631'`.  
+1. `addr` (_String_ | _Number_): ieee(string) or nwk(number).  
+2. `epId` (_Number_):  
 
 **Returns:**  
 
-* (_Object_): device. Returns `undefined` if not found.  
+* (_Object_): endpoint.  
 
 **Examples:**  
 
 *************************************************
 <br />
 
-<a name="API_bind"></a>
-### .bind(srcEp, dstEp, cId[, grpId][, callback])
+<a name="API_lqi"></a>
+### .lqi(ieeeAddr, callback)
 
 **Arguments:**  
 
-1. `srcEp` (_Object_): source endpoint.  
-2. `dstEp` (_Object_): destination endpoint.  
-3. `cId` (_String_ | _Number_): Specifies the cluster Id.  
-4. `grpId` (_Number_): group Id.  
-5. `callback` (_Function_): `function (err, rsp) { }`.  
+1. `ieeeAddr` (_String_):  
+3. `callback` (_Function_): `function (err, rsp) { }`.  
 
 **Returns:**  
 
-**Examples:**  
-
-*************************************************
-<br />
-
-<a name="API_unbind"></a>
-### .unbind(srcEp, dstEp, cId[, grpId][, callback])
-
-**Arguments:**  
-
-1. `srcEp` (_Object_): source endpoint.  
-2. `dstEp` (_Object_): destination endpoint.  
-3. `cId` (_String_ | _Number_): Specifies the cluster Id.  
-4. `grpId` (_Number_): group Id.  
-5. `callback` (_Function_): `function (err, rsp) { }`.  
-
-**Returns:**  
+* _none_  
 
 **Examples:**  
 
@@ -245,17 +238,19 @@ Exposed by `require('zigbee-shepherd')`
 <br />
 
 <a name="API_remove"></a>
-### .remove(dev[, cfg][, callback])
+### .remove(ieeeAddr[, cfg][, callback])
 
 **Arguments:**  
 
-1. `dev` (_Object_): device.  
-2. `cfg` (_Object_): This value-object has two properties `rejoin` and `rmchildren`  
-    - `rejoin` (_Boolean_):  
-    - `rmchildren` (_Boolean_):  
-3. `callback` (_Function_): `function (err, rsp) { }`.  
+1. `ieeeAddr` (_String_):  
+2. `cfg` (_Object_):  
+    - `reJoin` (_Boolean_):  
+    - `rmChildren` (_Boolean_):  
+3. `callback` (_Function_): `function (err) { }`.  
 
 **Returns:**  
+
+* _none_  
 
 **Examples:**  
 
@@ -266,23 +261,10 @@ Exposed by `require('zigbee-shepherd')`
 <a name="Events"></a>
 ## 5. Events  
 
-* [permitJoin](#EVT_permitJoin)  
 * [ind](#EVT_ind)  
 * [zdo](#EVT_zdo)  
 
 <br />
-
-*************************************************
-<br />
-
-<a name="EVT_permitJoin"></a>
-### .on('permitJoin', funciton (time) {})
-
-*************************************************
-<br />
-
-<a name="EVT_ind"></a>
-### .on('ind', funciton (msg) {})
 
 * ##### devIncoming  
 
@@ -305,13 +287,7 @@ Exposed by `require('zigbee-shepherd')`
     * msg.data: `'0x00124b0001ce3631'`  
 
 *************************************************
-<br />
 
-<a name="EVT_zdo"></a>
-### .on('zdo', funciton (msg) {})
-
-
-*************************************************
 <br />
 
 ## Device Class
@@ -322,111 +298,8 @@ Exposed by `require('zigbee-shepherd')`
 * [.dump()](#API_dump)  
 
 *************************************************
+
 <br />
-
-<a name="API_getEndpoint"></a>
-### .getEndpoint(epId)
-
-**Arguments:**  
-
-1. `epId` (_Object_): endpoint Id.  
-
-**Returns:**  
-
-* (_Object_): endpoint. Returns `undefined` if not found.  
-
-**Examples:**  
-
-*************************************************
-<br />
-
-<a name="API_getIeeeAddr"></a>
-### .getIeeeAddr()
-
-**Arguments:**  
-
-1. none  
-
-**Returns:**  
-
-* (_String_): Ieee Address.  
-
-**Examples:**  
-
-*************************************************
-<br />
-
-<a name="API_getNwkAddr"></a>
-### .getNwkAddr()
-
-**Arguments:**  
-
-1. none  
-
-**Returns:**  
-
-* (_Number_): Network Address.  
-
-**Examples:**  
-
-*************************************************
-<br />
-
-<a name="API_dump"></a>
-### .dump()
-
-**Arguments:**  
-
-1. none  
-
-**Returns:**  
-
-* (_Object_):  A data object of device record.  
-
-**Examples:**  
-
-```js
-    {
-        id: 2,
-        type: 'Router',
-        ieeeAddr: '0x00124b0001ce4beb',
-        nwkAddr: 55688,
-        status: 'online',
-        joinTime: 1469528238,
-        manufId: 0,
-        epList: [ 8 ],
-        endpoints: {
-            '8': {
-                profId: 260,
-                epId: 8,
-                devId: 0,
-                inClusterList: [ 0, 3 ],
-                outClusterList: [ 3, 6 ],
-                clusters: {
-                    'genBasic': {
-                        dir: 1,
-                        attrs: {
-                            'hwVersion': { value: 0 },
-                            'manufacturerName': { value: "TexasInstruments" },
-                        }
-                    },
-                    'genIdentify': {
-                        dir: 3,
-                        attrs: {
-                            'identifyTime': { value: 0 }
-                        }
-                    },
-                    'genOnOff': {
-                        dir:2,
-                        attrs: {
-                            'onOff': { value: 0 }
-                        }
-                    }
-                }
-            }
-        }
-    }
-```
 
 *************************************************
 
@@ -447,20 +320,6 @@ Exposed by `require('zigbee-shepherd')`
 * [.dump()](#API_dump)  
 
 *************************************************
-<br />
-
-<a name="API_getDevice"></a>
-### .getDevice()
-
-**Arguments:**  
-
-1. none  
-
-**Returns:**  
-
-* (_Object_): device.  
-
-**Examples:**  
 
 <br />
 
