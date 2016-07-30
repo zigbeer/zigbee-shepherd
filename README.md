@@ -38,6 +38,26 @@
 <a name="Usage"></a>
 ## 3. Usage  
 
+```js
+var ZShepherd = require('zigbee-shepherd');
+var shepherd = new ZShepherd('/dev/ttyUSB0');    // create a ZigBee server
+
+shepherd.on('ready', function () {
+    console.log('Server is ready.');
+
+    // allow devices to join the network within 60 secs
+    shepherd.permitJoin(60, function (err) {
+        if (err)
+            console.log(err);
+    }); 
+});
+
+shepherd.start(function (err) {    // start the server
+    if (err)
+        console.log(err);
+});
+```
+
 <br />
 
 <a name="APIs"></a>
