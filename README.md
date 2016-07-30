@@ -25,6 +25,19 @@
 
 <a name="Overview"></a>
 ## 1. Overview  
+**zigbee-shepherd** is an implementation of ZigBee Server that can run on platforms equipped with node.js.  
+
+* The goal of **zigbee-shepherd** is to let you build and manage a ZigBee machine network with less efforts.  
+
+* It is provided many functionality of network and endpoints management, e.g. permission of device joining, invoke zcl foundation or functional command to operate the remote Endpoints.  
+
+* With **zigbee-shepherd**, you can implement a server-side zigbee application easily with the ZCL framework [zive](https://github.com/zigbeer/zive). It opens another way of implementing applications with zigbee coordinator.
+
+#### Features
+* Building your machine network with ZigBee devices.
+* Creating zigbee application on coordinator is simple and quick.
+* ZCL operations to read and write attributes.
+* Based-on node.js. It's easy to integrate shepherd's application with other services or frameworks, e.g. http server, express, React.js, Angular.js.
 
 <br />
 
