@@ -26,59 +26,40 @@ An open source ZigBee gateway solution with node.js.
 
 <a name="Overview"></a>
 ## 1. Overview  
-**zigbee-shepherd** is an open source ZigBee gateway solution implemented with node.js. It uses TI's [CC253X](http://www.ti.com/lsds/ti/wireless_connectivity/zigbee/overview.page) wireless SoC as a [zigbee network processor(ZNP)](https://github.com/zigbeer/cc-znp#2-zigbee-network-processor), and takes the ZNP approach to run the CC253X as a coordinator.  
+
+**zigbee-shepherd** is an open source ZigBee gateway solution with node.js. It uses TI's [CC253X](http://www.ti.com/lsds/ti/wireless_connectivity/zigbee/overview.page) wireless SoC as a [zigbee network processor (ZNP)](http://www.ti.com/lit/an/swra444/swra444.pdf), and takes the ZNP approach with [cc-znp](https://github.com/zigbeer/cc-znp) to run the CC253X as a coordinator and to run zigbee-shepherd as the host. zigbee-shepherd has carried many network managing things for you, i.e., storing(/reloading) connected devices and endpoints records to(/from) the built-in database, permission of device joining, endpoints binding, and indications of device incoming and leaving.  
   
-[TODO]
-**zigbee-shepherd** can also integrate with **zive**, a ZigBee ZCL application framework, into your gateway. With **zive**, third-parties can independently and easily build their applications as plugins without knowing of the z-stack behavior. Plugins are node.js modules off-the-shelf, all you have to do is just to require a module and then register it to **zigbee-shepherd** to enable the zigbee application. For example, I'm now working on a CIE (Control and Indicating Equipment) plugin for the zigbee IAS (Intruder Alarm System) application.  
+This gateway solution also works well with the ZigBee ZCL application framework - [**_zive_**](https://github.com/zigbeer/zive) to help developers build zigbee application with a real endpoint firmed on the coordinator. With **_zive_**, third-parties can independently make their zigbee applications as plugins without knowing of the z-stack behavior. The concept of plugin is really cool. When you like a zigbee IAS (Intruder Alarm System) application on your gateway, just download the plugin and register it to zigbee-shepherd, and now you have an IAS service at your home in seconds. (I'm now working on a CIE (Control and Indicating Equipment) plugin for the zigbee IAS application.)  
+  
+zigbee-shepherd provides a nice environment for front-end and back-end web developers to use their familiar language - _**JavaScript**_, to build ZigBee applications. With node.js, they can have their own RESTful APIs to bring ZigBee machines to web world, can push machines to the cloud, can have a great machine database, can create an account system, and can build any fascinating GUI and dashboard with many cool UI frameworks. With zigbee-shepherd, now web developers can do a lot of IoT things with ZigBee! It brings opportunities for app developers as well as opens another way of implementing IoT applications with ZigBee devices.  
+  
+Let's do something fun with ZigBee! I hope you enjoy it!  
 
-It is fun to create something with node.js, like your own RESTful APIs, dashboard, funny applications.
-I hope you enjoy it.  
-
-With node.js, back-end developers can have RESTful APIs to bring zigbee machines to web world easily, and can push machines to the cloud as well. For front-end developers, they can do more creative things with Javascript, and can build any fascinating GUI they want with many cool UI frameworks.
-
-
-ble-shepherd has all the features you need in controlling your BLE network, monitoring and operating BLE pheripheral devices. This controller has carried many network managing things for you, i.e., auto scanning for pheripheral devices, storing(/reloading) connected devices records to(/from) the built-in database, configuring connection parameters, and notifying online/offline status of devices with auto reconnection.
-
-```js
-peripheral.read('0x1800', '0x2a00', function (err, value) {
-    // value is remotely read from the peripheral device
-});
-peripheral.write('0x1800', '0x2a02', { flag: false }, function (err) {
-    // value is remotely write to the peripheral device
-});
-```
-
-With ble-shepherd, you can get rid of such networking things and focus on your application logics. It opens another way of implementing IoT applications with BLE devices. With node.js, you can build your own application console(or dashboard) and design your own RESTful APIs in seconds. It's easy to make your BLE devices happy on the cloud.
-
-The goal of mqtt-shepherd is to let you build and manage an MQTT machine network with less efforts, it is implemented as a server-side application framework with functionality of network and devices management, e.g. permission of device joining, device authentication, reading resources, writing resources, observing resources, and executing a procedure on the remote Devices. Furthermore, thanks to the power of node.js, making your own RESTful APIs to interact with your machines is also possible.
-
-
-**zigbee-shepherd** is not only as a gateway, 
-* The goal of **zigbee-shepherd** is to let you build and manage a ZigBee machine network with less efforts.  
-
-* It is provided many functionality of network and endpoints management, e.g. permission of device joining, invoke zcl foundation or functional command to operate the remote Endpoints.  
-
-* With **zigbee-shepherd**, you can implement a server-side zigbee application easily with the ZCL framework [zive](https://github.com/zigbeer/zive). It opens another way of implementing applications with zigbee coordinator.
-
-#### Features
-* Building your machine network with ZigBee devices.
-* Creating zigbee application on coordinator is simple and quick.
-* ZCL operations to read and write attributes.
-* Based-on node.js. It's easy to integrate shepherd's application with other services or frameworks, e.g. http server, express, React.js, Angular.js.
 
 <br />
 
 <a name="Installation"></a>
 ## 2. Installation  
 
+* Install zigbee-shepherd
+
 > $ npm install zigbee-shepherd --save
 
-To use CC2530/31 as the coordinator, please download this [pre-built ZNP image](#) to your chip first. The pre-built image has compiled with things we need, such as ZDO callback and ZCL supports.  
+* Hardware
+    - [SmartRF05EB (with CC2530EM)](http://www.ti.com/tool/cc2530dk)  
+    - [CC2531 USB Stick](http://www.ti.com/tool/cc2531emk)  
+    - CC2538 (Not tested. I don't have the kit.)  
+    - CC2630/CC2650 (Not tested. I don't have the kit.)  
+
+* Firmware
+    - To use CC2530/31 as the coordinator, please download the [pre-built ZNP image](http://github.com) to your chip first. The pre-built image has compiled as a ZNP with ZDO callback, ZCL supports, and functions we need.  
 
 <br />
 
 <a name="Usage"></a>
 ## 3. Usage  
+
+* Start the shepherd
 
 ```js
 var ZShepherd = require('zigbee-shepherd');
@@ -97,6 +78,35 @@ shepherd.on('ready', function () {
 shepherd.start(function (err) {                 // start the server
     if (err)
         console.log(err);
+});
+```
+
+* Interact with remote endpoints, here is a quick example:
+
+```js
+// find the joined endpoint by it's address and endpoint id
+var ep = shepherd.find('0x00124b0001ce4beb', 6);    // returns undefined if not found
+
+// use foundation command to read attributes from a remote endpoint
+ep.foundation('genBasic', 'read', [ { attrId: 3 }, { attrId: 4 } ], function (err, rsp) {
+    if (!err)
+        console.log(rsp);
+// [
+//     { attrId: 3, status: 0, dataType: 32, attrData: 0 },
+//     { attrId: 4, status: 0, dataType: 66, attrData: 'TexasInstruments' }
+// ]
+});
+
+// or use the shorthand read() method to read a single attribute
+ep.read('genBasic', 'manufacturerName', function (err, data) {
+    if (!err)
+        console.log(data);   // 'TexasInstruments'
+});
+
+// use functional command to operate a remote endpoint
+ep.functional('genOnOff', 'toggle', {}, function (err, rsp) {
+    if (!err)
+        console.log(rsp); // { cmdId: 2, statusCode: 0 }
 });
 ```
 
@@ -576,7 +586,7 @@ ep.foundation('genBasic', 'read', [ { attrId: 3 }, { attrId: 4 } ], function (er
 //         attrData: 0
 //     },
 //     {
-//         attrId: 3,     // manufacturerName
+//         attrId: 4,     // manufacturerName
 //         status: 0,     // success
 //         dataType: 66,  // charStr
 //         attrData: 'TexasInstruments'
