@@ -1,6 +1,6 @@
 {
   "name": "zigbee-shepherd",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "zigbee-shepherd is a network controller for ZigBee devices.",
   "main": "index.js",
   "scripts": {

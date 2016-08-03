@@ -138,7 +138,7 @@ describe('Module Methods Check', function() {
                     },
                     manufCode: 0,
                     seqNum: 0,
-                    cmd: 'writeUndiv',
+                    cmdId: 'writeUndiv',
                     payload: [
                         {attrId: 0x1234, dataType: 0x41, attrData: 'hello'},
                         {attrId: 0xabcd, dataType: 0x24, attrData: [100, 2406]},
@@ -154,7 +154,7 @@ describe('Module Methods Check', function() {
                     },
                     manufCode: 0xaaaa,
                     seqNum: 1,
-                    cmd: 'configReport',
+                    cmdId: 'configReport',
                     payload: [
                         {direction: 0, attrId: 0x0001, dataType: 0x20, minRepIntval: 500, maxRepIntval: 1000, repChange: 10},
                         {direction: 1, attrId: 0x0001, timeout: 999},
@@ -170,7 +170,7 @@ describe('Module Methods Check', function() {
                     },
                     manufCode: 0,
                     seqNum: 2,
-                    cmd: 'writeStrcut',
+                    cmdId: 'writeStrcut',
                     payload: [
                         {attrId: 0x0011, selector: {indicator: 3, indexes: [0x0101, 0x0202, 0x0303]}, dataType: 0x21, attrData: 60000},
                         {attrId: 0x0022, selector: {indicator: 0}, dataType: 0x50, attrData: {elmType: 0x20, numElms: 3, elmVals: [1, 2, 3]}},
@@ -183,7 +183,7 @@ describe('Module Methods Check', function() {
             var zBuf;
 
             it('zcl foundation framer and parser Check', function () {
-                zBuf = zcl.frame(zclFrame.frameCntl, zclFrame.manufCode, zclFrame.seqNum, zclFrame.cmd, zclFrame.payload);
+                zBuf = zcl.frame(zclFrame.frameCntl, zclFrame.manufCode, zclFrame.seqNum, zclFrame.cmdId, zclFrame.payload);
                 zcl.parse(zBuf, function (err, result) {
                     expect(result).to.eql(zclFrame);
                 });
@@ -202,7 +202,7 @@ describe('Module Methods Check', function() {
                 },
                 manufCode: 0,
                 seqNum: 0,
-                cmd: 'add',
+                cmdId: 'add',
                 payload: {
                     groupid: 0x1234,
                     sceneid: 0x08,
@@ -221,7 +221,7 @@ describe('Module Methods Check', function() {
                 },
                 manufCode: 0xaaaa,
                 seqNum: 1,
-                cmd: 'addRsp',
+                cmdId: 'addRsp',
                 payload: {
                     status: 0x26,
                     groupId: 0xffff,
@@ -237,7 +237,7 @@ describe('Module Methods Check', function() {
                 },
                 manufCode: 0,
                 seqNum: 2,
-                cmd: 'getSceneMembershipRsp',
+                cmdId: 'getSceneMembershipRsp',
                 payload: {
                     status: 0x01,
                     capacity: 0x02,
@@ -252,9 +252,9 @@ describe('Module Methods Check', function() {
             var zBuf;
 
             it('zcl functional framer and parser Check', function () {
-                zBuf = zcl.frame(zclFrame.frameCntl, zclFrame.manufCode, zclFrame.seqNum, zclFrame.cmd, zclFrame.payload, 0x0005);
+                zBuf = zcl.frame(zclFrame.frameCntl, zclFrame.manufCode, zclFrame.seqNum, zclFrame.cmdId, zclFrame.payload, 0x0005);
                 zcl.parse(zBuf, 0x0005, function (err, result) {
-                    if (result.cmd === 'add')
+                    if (result.cmdId === 'add')
                         result.frameCntl.direction = 0;
                     else 
                         result.frameCntl.direction = 1;
