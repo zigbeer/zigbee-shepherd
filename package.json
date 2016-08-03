@@ -1,6 +1,6 @@
 {
   "name": "zigbee-shepherd",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "zigbee-shepherd is a network controller for ZigBee devices.",
   "main": "index.js",
   "scripts": {
@@ -32,12 +32,14 @@
   "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme",
   "dependencies": {
     "areq": "^0.0.9",
-    "busyman": "^0.1.1",
-    "cc-znp": "0.0.9",
+    "busyman": "^0.1.4",
+    "cc-znp": "^0.1.1",
     "objectbox": "0.0.8",
     "q": "^1.4.1",
-    "zcl-id": "0.0.4",
-    "zcl-packet": "^0.0.1",
+    "zcl-id": "^0.0.5",
+    "zcl-packet": "^0.0.2",
+    "ziee": "0.0.8",
+    "zive": "0.0.2",
     "zstack-constants": "^0.0.6"
   },
   "devDependencies": {
