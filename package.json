@@ -36,8 +36,8 @@
     "cc-znp": "^0.1.1",
     "objectbox": "0.0.8",
     "q": "^1.4.1",
-    "zcl-id": "^0.0.5",
-    "zcl-packet": "^0.0.2",
+    "zcl-id": "^0.0.7",
+    "zcl-packet": "^0.0.3",
     "ziee": "0.0.8",
     "zive": "0.0.2",
     "zstack-constants": "^0.0.6"
