@@ -131,6 +131,7 @@ This module provides you with **ZShepherd** and **Endpoint** classes.
     * [.find()](#API_find)  
     * [.lqi()](#API_lqi)  
     * [.remove()](#API_remove)  
+    * Events: [ready](#EVT_ready), [error](#EVT_error), [permitJoining](#EVT_permit), and [ind](#EVT_ind)  
 
 * Endpoint APIs  
     * [.getSimpleDesc()](#API_getSimpleDesc)  
@@ -467,6 +468,75 @@ shepherd.remove('0x00124b0001ce4beb', { reJoin: false },function (err) {
         console.log('Successfully removed!');
 });
 ```
+  
+*************************************************
+<a name="EVT_ready"></a>
+### Event: 'ready'  
+Listener: `function () { }`  
+Fired when Server is ready.  
+  
+*************************************************
+<a name="EVT_error"></a>
+### Event: 'error'  
+Listener: `function (err) { }`  
+Fired when there is an error occurs.  
+  
+*************************************************
+<a name="EVT_permit"></a>
+### Event: 'permitJoining'
+Listener: `function (joinTimeLeft) {}`  
+Fired when the Server is allowing for devices to join the network, where `joinTimeLeft` is number of seconds left to allow devices to join the network. This event will be triggered at each tick of countdown.  
+  
+*************************************************
+<a name="EVT_ind"></a>
+### Event: 'ind'
+Listener: `function (msg) { }`  
+Fired when there is an incoming indication message. The `msg` is an object with the properties given in the table:  
+
+| Property       | Type                 | Description                                                                                                                                                    |
+|----------------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| type           | String               | Indication type, can be `'devIncoming'`, `'devLeaving'`, `'devChange'`, and `'devStatus'`.                                                                     |
+| endpoints      | Object[] \| Number[] | An array of the endpoint instance, except that when `type === 'devLeaving'`, endpoints will be an array of the endpoint id (since endpoints have been removed) |
+| data           | Depends              | Data along with the indication, which depends on the type of indication                                                                                        |
+
+
+* ##### devIncoming  
+    When there is a ZigBee Device incoming to the network, server will fire an `'ind'` event along with this type of indication.  
+
+    * msg.type: `'devIncoming'`  
+    * msg.endpoints: `[ ep, ... ]`  
+    * msg.data: `'0x00124b0001ce4beb'`, the ieee address of which device is incoming.  
+
+* ##### devLeaving  
+    When there is a ZigBee Device leaving the network, server will fire an `'ind'` event along with this type of indication.  
+
+    * msg.type: `'devLeaving'`  
+    * msg.endpoints: `[ epId, ... ]`, the endpoint id of which endpoint is leaving  
+    * msg.data: `'0x00124b0001ce4beb'`, the ieee address of which device is leaving.  
+
+* ##### devChange  
+    When the Server perceives that there is any change of _Attributes_ from ZCL foundation/functional responses, server will fire an `'ind'` event along this type of indication.  
+
+    * msg.type: `'devChange'`  
+    * msg.endpoints: `[ep]`  
+    * msg.data: Content of the changes. This object has fileds of `cid` and `data`.  
+
+        ```js
+        // change of the 'genOnOff' cluster
+        {
+            cid: 'genOnOff',
+            data: {
+                onOff: 1
+            }
+        }
+        ```
+
+* ##### devStatus  
+    When there is a ZigBee Device going online or offline, server will fire an `'ind'` event along this type of indication.  
+
+    * msg.type: `'devStatus'`  
+    * msg.endpoints: `[ ep, ... ]`  
+    * msg.data: `'online'` or `'offline'`  
 
 <br />
 *************************************************
