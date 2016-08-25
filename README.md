@@ -161,12 +161,13 @@ Create a new instance of the `ZShepherd` class. The created instance is a Zigbee
     - `sp` (_Object_): An optional object to [configure the seiralport](https://www.npmjs.com/package/serialport#serialport-path-options-opencallback). The following example shows the options with its default value.  
     - `net` (_Object_): An object to configure the network settings, and all properties in this object are optional. The descriptions are shown in the following table.  
 
-| Property         | Type    | Mandatory | Description                                                                                                                                                    | Default value                                                                                      |
-|------------------|---------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| panId            | Number  | Optional  | Identifies the ZigBee PAN. This id should be a value between 0 and 0x3FFF. You can also set it to 0xFFFF to let ZNP choose a random PAN-ID on its own.         | 0xFFFF                                                                                             |
-| channelList      | Array   | Optional  | Picks possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.              | [ 14 ]                                                                                             |
-| precfgkey        | Array   | Optional  | This is for securing and un-securing packets. It must be an array with 16 uint8 integers.                                                                      | [ 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F, 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0D ] |
-| precfgkeysEnable | Boolean | Optional  | To distribute the security key to all devices in the network or not.                                                                                           | true                                                                                               |
+| Property           | Type    | Mandatory | Description                                                                                                                                                    | Default value                                                                                      |
+|--------------------|---------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
+| panId              | Number  | Optional  | Identifies the ZigBee PAN. This id should be a value between 0 and 0x3FFF. You can also set it to 0xFFFF to let ZNP choose a random PAN-ID on its own.         | 0xFFFF                                                                                             |
+| channelList        | Array   | Optional  | Picks possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.              | [ 14 ]                                                                                             |
+| precfgkey          | Array   | Optional  | This is for securing and un-securing packets. It must be an array with 16 uint8 integers.                                                                      | [ 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F, 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0D ] |
+| precfgkeysEnable   | Boolean | Optional  | To distribute the security key to all devices in the network or not.                                                                                           | true                                                                                               |
+| startoptClearState | Boolean | Optional  | If this option is set, the device will clear its previous network state. This is typically used during application development.                                | false                                                                                              |
 
 **Returns:**  
 
@@ -432,7 +433,17 @@ Query the link quality index from a certain device by its ieee address.
 ```js
 shepherd.lqi('0x00124b0001ce4beb', function (err, data) {
     if (!err)
-        console.log(data);  // 62
+        console.log(data);
+    // [
+    //     {
+    //         ieeeAddr: '0x00124b0001ce3631',
+    //         lqi: 62
+    //     },
+    //     {
+    //         ieeeAddr: '0x00124b00019c2ee9',
+    //         lqi: 70
+    //     }
+    // ]
 });
 ```
 

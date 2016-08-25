@@ -9,8 +9,7 @@ var af = require('../lib/components/af')(controller),
     Device  = require('../lib/model/device'),
     Endpoint  = require('../lib/model/endpoint'),
     Coord  = require('../lib/model/coord'),
-    Coordpoint  = require('../lib/model/coordpoint'),
-    Cluster = require('../lib/model/cluster');
+    Coordpoint  = require('../lib/model/coordpoint');
 
 var remoteDev = new Device({
     type: 1,
