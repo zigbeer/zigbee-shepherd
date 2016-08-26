@@ -82,8 +82,7 @@ describe('Constructor Check', function () {
             extPanId: null,
             ieeeAddr: null,
             nwkAddr: 0,
-            permitRemainingTime: 0,
-            numPendingAttribs: 0
+            joinTimeLeft: 0,
         });
 
         expect(controller.nextTransId).to.be.a('function');
@@ -186,32 +185,32 @@ describe('Signature Check', function () {
             expect(controller.permitJoin).to.be.a('function');
         });
 
-        it('should throw if joinType is not a number and not a string', function () {
-            expect(function () { return controller.permitJoin([], 10, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin({}, 10, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin(undefined, 10, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin(null, 10, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin(NaN, 10, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin(true, 10, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin(new Date(), 10, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin(function () {}, 10, function () {}); }).to.throw(TypeError);
+        it('should throw if joinTime is not a number', function () {
+            expect(function () { return controller.permitJoin('x', 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin([], 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin({}, 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(undefined, 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(null, 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(NaN, 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(true, 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(new Date(), 'coord', function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(function () {}, 'coord', function () {}); }).to.throw(TypeError);
 
-            expect(function () { return controller.permitJoin(1, 10, function () {}); }).not.to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', 10, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, 'coord', function () {}); }).not.to.throw(TypeError);
         });
 
-        it('should throw if joinTime is not a number', function () {
-            expect(function () { return controller.permitJoin('coord', 'x', function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', [], function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', {}, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', undefined, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', null, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', NaN, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', true, function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', new Date(), function () {}); }).to.throw(TypeError);
-            expect(function () { return controller.permitJoin('coord', function () {}, function () {}); }).to.throw(TypeError);
+        it('should throw if joinType is not a number and not a string', function () {
+            expect(function () { return controller.permitJoin(10, [], function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, {}, function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, undefined, function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, null, function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, NaN, function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, true, function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, new Date(), function () {}); }).to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, function () {}, function () {}); }).to.throw(TypeError);
 
-            expect(function () { return controller.permitJoin('coord', 10, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, 1, function () {}); }).not.to.throw(TypeError);
+            expect(function () { return controller.permitJoin(10, 'coord', function () {}); }).not.to.throw(TypeError);
         });
     });
 
