@@ -32,14 +32,14 @@
   "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme",
   "dependencies": {
     "areq": "^0.1.0",
-    "busyman": "^0.2.0",
-    "cc-znp": "^0.1.1",
-    "objectbox": "^0.2.0",
+    "busyman": "^0.2.1",
+    "cc-znp": "^0.2.0",
+    "objectbox": "^0.2.1",
     "q": "^1.4.1",
-    "zcl-id": "^0.1.2",
-    "zcl-packet": "^0.0.3",
+    "zcl-id": "^0.1.4",
+    "zcl-packet": "^0.1.0",
     "ziee": "^0.0.9",
-    "zive": "^0.0.2",
+    "zive": "^0.0.3",
     "zstack-constants": "^0.1.0"
   },
   "devDependencies": {

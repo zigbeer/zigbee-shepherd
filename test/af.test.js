@@ -65,6 +65,9 @@ var loEp8 = new Coordpoint(coordDev, {
     outClusterList: [ 0x0000, 0x0006 ]
 });
 
+coordDev.endpoints[loEp1.getEpId()] = loEp1;
+coordDev.endpoints[loEp8.getEpId()] = loEp8;
+
 coordDev.getDelegator = function (profId) {
     if (profId === 0x0104)
         return loEp1;
@@ -102,7 +105,7 @@ controller.findEndpoint = function (srcaddr, srcendpoint) {
         else if (srcendpoint === loEp8.getEpId())
             return loEp8;
     }
-}
+};
 
 function fireFakeCnf(status, epid, transid) {
     var afEventCnf = 'AF:dataConfirm:' + epid + ':' + transid;
@@ -1575,4 +1578,3 @@ describe('Module Methods Check', function() {
        });
     });
 });
-
