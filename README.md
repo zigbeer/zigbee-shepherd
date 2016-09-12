@@ -5,7 +5,7 @@ An open source ZigBee gateway solution with node.js.
 
 [![NPM](https://nodei.co/npm/zigbee-shepherd.png?downloads=true)](https://nodei.co/npm/zigbee-shepherd/)  
 
-[![Travis branch](https://img.shields.io/travis/zigbeer/zigbee-shepherd/develop.svg?maxAge=2592000)](https://travis-ci.org/zigbeer/zigbee-shepherd)
+[![Travis branch](https://img.shields.io/travis/zigbeer/zigbee-shepherd/master.svg?maxAge=2592000)](https://travis-ci.org/zigbeer/zigbee-shepherd)
 [![npm](https://img.shields.io/npm/v/zigbee-shepherd.svg?maxAge=2592000)](https://www.npmjs.com/package/zigbee-shepherd)
 [![npm](https://img.shields.io/npm/l/zigbee-shepherd.svg?maxAge=2592000)](https://www.npmjs.com/package/zigbee-shepherd)
 
@@ -34,7 +34,6 @@ This gateway solution also works well with the ZigBee ZCL application framework 
 zigbee-shepherd provides a nice environment for front-end and back-end web developers to use their familiar language - _**JavaScript**_, to build ZigBee applications. With node.js, they can have their own RESTful APIs to bring ZigBee machines to web world, can push machines to the cloud, can have a great machine database, can create an account system, and can build any fascinating GUI and dashboard with many cool UI frameworks. With zigbee-shepherd, now web developers can do a lot of IoT things with ZigBee! It brings opportunities for app developers as well as opens another way of implementing IoT applications with ZigBee devices.  
   
 Let's do something fun with ZigBee! I hope you enjoy it!  
-
 
 <br />
 
@@ -116,7 +115,7 @@ ep.functional('genOnOff', 'toggle', {}, function (err, rsp) {
 ## 4. APIs and Events  
 This module provides you with **ZShepherd** and **Endpoint** classes.  
 
-* **ZShepherd** class brings you a ZigBee Server with network managing facilities, i.e., start/stop the Server, permit device joining, find an joined endpoint. This document uses `shepherd` to denote the instance of this class.  
+* **ZShepherd** class brings you a ZigBee Server with network managing facilities, i.e., start/stop the Server, permit device joining, find a joined endpoint. This document uses `shepherd` to denote the instance of this class.  
 
 * **Endpoint** is the class for creating a software endpoint to represent the remote or local endpoint at server-side. This document uses `ep` to denote the instance of this class. You can invoke methods on an `ep` to operate the endpoint.  
 
@@ -126,6 +125,7 @@ This module provides you with **ZShepherd** and **Endpoint** classes.
     * [.stop()](#API_stop)  
     * [.reset()](#API_reset)  
     * [.permitJoin()](#API_permitJoin)  
+    * [.info()](#API_info)  
     * [.mount()](#API_mount)  
     * [.list()](#API_list)  
     * [.find()](#API_find)  
@@ -144,12 +144,12 @@ This module provides you with **ZShepherd** and **Endpoint** classes.
     * [.dump()](#API_dump)  
 
 <br />
-*************************************************
+
 ## ZShepherd Class
 Exposed by `require('zigbee-shepherd')`  
-
-<br />
+  
 *************************************************
+
 <a name="API_ZShepherd"></a>
 ### new ZShepherd(path[, opts])
 Create a new instance of the `ZShepherd` class. The created instance is a Zigbee gateway that runs with node.js.  
@@ -193,8 +193,8 @@ var shepherd = new ZShepherd('/dev/ttyUSB0', {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_start"></a>
 ### .start([callback])
 Connect to the ZNP and start shepherd.  
@@ -216,8 +216,8 @@ shepherd.start(function (err) {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_stop"></a>
 ### .stop([callback])
 Disconnect from the ZNP and stop shepherd.  
@@ -239,8 +239,8 @@ shepherd.stop(function (err) {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_reset"></a>
 ### .reset(mode[, callback])
 Reset the ZNP.  
@@ -263,8 +263,8 @@ shepherd.reset(0, function (err) {
 })
 ```
 
-<br />
 *************************************************
+
 <a name="API_permitJoin"></a>
 ### .permitJoin(time[, type][, callback])
 Allow or disallow devices to join the network.  
@@ -272,7 +272,7 @@ Allow or disallow devices to join the network.
 **Arguments:**  
 
 1. `time` (_Number_): Time in seconds for shepherd to allow devices to join the network. This property accepts a value ranging from  `0` to `255`. Given with `0` can immediately close the admission and given with `255` will always allow devices to join in.  
-2. `type` (_String_ | _Number_): Set it to `'coord'` or `0` to let devices join the network through the coordinater, and set it to `'all'` or `1` to let devices join the network through the coordinater or routers. The default value is `'all'`.  
+2. `type` (_String_ | _Number_): Set it to `'coord'` or `0` to let devices join the network through the coordinator, and set it to `'all'` or `1` to let devices join the network through the coordinator or routers. The default value is `'all'`.  
 3. `callback` (_Function_): `function (err) { }`. Get called when permitJoining process starts.  
 
 **Returns:**  
@@ -288,8 +288,51 @@ shepherd.permitJoin(60, function (err) {
 })
 ```
 
-<br />
 *************************************************
+
+<a name="API_info"></a>
+### .info()
+Returns shepherd information.
+
+**Arguments:**  
+
+1. none  
+
+**Returns:**  
+
+* (_Object_): An object that contains information about the server. Properties in this object are given in the following table.  
+
+    | Property       | Type    | Description                                                                   |
+    |----------------|---------|-------------------------------------------------------------------------------|
+    | enabled        | Boolean | Server is up(`true`) or down(`false`)                                         |
+    | net            | Object  | Network information, `{ state, channel, panId, extPanId, ieeeAddr, nwkAddr }` |
+    | startTime      | Number  | Unix Time (secs from 1970/1/1)                                                |
+    | joinTimeLeft   | Number  | How many seconds left for allowing devices to join the Network                |
+
+**Examples:**  
+
+```js
+shepherd.info();
+
+/*
+{
+    enabled: true,
+    net: {
+        state: 'Coordinator',
+        channel: 11,
+        panId: '0x7c71',
+        extPanId: '0xdddddddddddddddd',
+        ieeeAddr: '0x00124b0001709887',
+        nwkAddr: 0,
+    },
+    startTime: 1473415541,
+    joinTimeLeft: 49
+}
+*/
+```
+
+*************************************************
+
 <a name="API_mount"></a>
 ### .mount(zApp, callback)
 Mounts a zigbee application `zApp` that will be registered to the coordinator as a local endpoint, where `zApp` is an instance created by the ZCL framework [zive](https://github.com/zigbeer/zive). With **zive**, all you have to do is to plan your clusters well and **zive** itself will handle all ZCL messages for you.  
@@ -314,8 +357,8 @@ shepherd.mount(myZbApp, function (err, epId) {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_list"></a>
 ### .list([ieeeAddrs])
 Lists the information of devices managed by shepherd. The argument accepts a single ieee address or an array of ieee addresses, and the output will always be an array of the corresponding records. All device records will be listed out if `ieeeAddrs` is not given.  
@@ -386,8 +429,8 @@ shepherd.list( [ '0x00124b0001ce4beb', 'no_such_device', '0x00124b0001ce3631'] )
 // ]
 ```
 
-<br />
 *************************************************
+
 <a name="API_find"></a>
 ### .find(addr, epId)
 Find an endpoint instance by address and endpoint id.  
@@ -413,8 +456,8 @@ shepherd.find(1200, 10);                 // object, the endpoint instance
 shepherd.find('0x00124b0001ce4beb', 10); // object, the endpoint instance
 ```
 
-<br />
 *************************************************
+
 <a name="API_lqi"></a>
 ### .lqi(ieeeAddr, callback)
 Query the link quality index from a certain device by its ieee address.  
@@ -447,8 +490,8 @@ shepherd.lqi('0x00124b0001ce4beb', function (err, data) {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_remove"></a>
 ### .remove(ieeeAddr[, cfg][, callback])
 Remove the device from the network.  
@@ -457,8 +500,8 @@ Remove the device from the network.
 
 1. `ieeeAddr` (_String_): Ieee address of the device.  
 2. `cfg` (_Object_):  
-    - `reJoin` (_Boolean_): Set to `true` if device is allowed for re-joining, otherwise `false`. Deafult is `true`.  
-    - `rmChildren` (_Boolean_): Set to `true` will remove all children of this device as well. Deafult is `false`.  
+    - `reJoin` (_Boolean_): Set to `true` if device is allowed for re-joining, otherwise `false`. Default is `true`.  
+    - `rmChildren` (_Boolean_): Set to `true` will remove all children of this device as well. Default is `false`.  
 3. `callback` (_Function_): `function (err) { }`.  
 
 **Returns:**  
@@ -479,26 +522,30 @@ shepherd.remove('0x00124b0001ce4beb', { reJoin: false },function (err) {
         console.log('Successfully removed!');
 });
 ```
-  
+
 *************************************************
+
 <a name="EVT_ready"></a>
 ### Event: 'ready'  
 Listener: `function () { }`  
 Fired when Server is ready.  
-  
+
 *************************************************
+
 <a name="EVT_error"></a>
 ### Event: 'error'  
 Listener: `function (err) { }`  
 Fired when there is an error occurs.  
-  
+
 *************************************************
+
 <a name="EVT_permit"></a>
 ### Event: 'permitJoining'
 Listener: `function (joinTimeLeft) {}`  
 Fired when the Server is allowing for devices to join the network, where `joinTimeLeft` is number of seconds left to allow devices to join the network. This event will be triggered at each tick of countdown.  
-  
+
 *************************************************
+
 <a name="EVT_ind"></a>
 ### Event: 'ind'
 Listener: `function (msg) { }`  
@@ -530,7 +577,7 @@ Fired when there is an incoming indication message. The `msg` is an object with 
 
     * msg.type: `'devChange'`  
     * msg.endpoints: `[ep]`  
-    * msg.data: Content of the changes. This object has fileds of `cid` and `data`.  
+    * msg.data: Content of the changes. This object has fields of `cid` and `data`.  
 
         ```js
         // change of the 'genOnOff' cluster
@@ -549,13 +596,15 @@ Fired when there is an incoming indication message. The `msg` is an object with 
     * msg.endpoints: `[ ep, ... ]`  
     * msg.data: `'online'` or `'offline'`  
 
-<br />
 *************************************************
+
+<br />
+
 ## Endpoint Class
 This class provides you with methods to operate the remote endpoints or local endpoints. An instance of this class is denoted as `ep` in this document.  
 
-<br />
 *************************************************
+
 <a name="API_getSimpleDesc"></a>
 ### .getSimpleDesc()
 Returns simple descriptor of the endpoint.  
@@ -591,8 +640,8 @@ ep.getSimpleDesc();
 // }
 ```
 
-<br />
 *************************************************
+
 <a name="API_getIeeeAddr"></a>
 ### .getIeeeAddr()
 Returns ieee address of the device holding this endpoint.  
@@ -612,8 +661,8 @@ ep1.getIeeeAddr();    // '0x00124b0001ce4beb'
 ep2.getIeeeAddr();    // '0x00124b0001ce3631'
 ```
 
-<br />
 *************************************************
+
 <a name="API_getNwkAddr"></a>
 ### .getNwkAddr()
 Returns network address of the device holding this endpoint.  
@@ -629,25 +678,25 @@ Returns network address of the device holding this endpoint.
 **Examples:**  
 
 ```js
-ep1.getIeeeAddr();    // 55688
-ep2.getIeeeAddr();    // 11698
+ep1.getNwkAddr();    // 55688
+ep2.getNwkAddr();    // 11698
 ```
 
-<br />
 *************************************************
+
 <a name="API_foundation"></a>
 ### .foundation(cId, cmd, zclData[, cfg], callback)
 Send ZCL foundation command to this endpoint. Response will be passed through second argument of the callback.  
 
 **Arguments:**  
 
-1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table), i.e. `'genBasic'`, `0`, `'genOnOff'`, 6.  
-2. `cmd` (_String_ | _Number_):  [ZCL foundation command id](https://github.com/zigbeer/zcl-packet#FoundCmdTbl), i.e. `'read'`, `0`, `'discover'`, `12`.  
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table), i.e. `'genBasic'`, `0`, `'genOnOff'`, `6`.  
+2. `cmd` (_String_ | _Number_): [ZCL foundation command id](https://github.com/zigbeer/zcl-packet#FoundCmdTbl), i.e. `'read'`, `0`, `'discover'`, `12`.  
 3. `zclData` (_Object_ | _Array_): [zclData](https://github.com/zigbeer/zcl-packet#FoundCmdTbl), which depends on the specified command.  
 4. `cfg` (_Object_):  
-    - `manufSpec` (_Number_): Tells if this is a manufacturer-specific command. Deafult is `0`.  
-    - `disDefaultRsp` (_Number_): Disable default response. Deafult is `0` to enable the default response.  
-5. `callback` (_Function_): `function (err, rsp) { }`. Please refer to [**Playload** in foundation command table](https://github.com/zigbeer/zcl-packet#FoundCmdTbl) to learn more about the `rsp` object.  
+    - `manufSpec` (_Number_): Tells if this is a manufacturer-specific command. Default is `0`.  
+    - `disDefaultRsp` (_Number_): Disable default response. Default is `0` to enable the default response.  
+5. `callback` (_Function_): `function (err, rsp) { }`. Please refer to [**Payload** in foundation command table](https://github.com/zigbeer/zcl-packet#FoundCmdTbl) to learn more about the `rsp` object.  
 
 **Returns:**  
 
@@ -676,8 +725,8 @@ ep.foundation('genBasic', 'read', [ { attrId: 3 }, { attrId: 4 } ], function (er
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_functional"></a>
 ### .functional(cId, cmd, zclData[, cfg], callback)
 Send ZCL functional command to this endpoint. The response will be passed to the second argument of the callback.  
@@ -688,8 +737,8 @@ Send ZCL functional command to this endpoint. The response will be passed to the
 2. `cmd` (_String_ | _Number_): [Functional command id](https://github.com/zigbeer/zcl-packet#FuncCmdTbl).  
 3. `zclData` (_Object_ | _Array_): [zclData](https://github.com/zigbeer/zcl-packet#FuncCmdTbl) depending on the given command.  
 4. `cfg` (_Object_):  
-    - `manufSpec` (_Number_): Tells if this is a manufacturer-specific command. Deafult is `0`.  
-    - `disDefaultRsp` (_Number_): Disable default response. Deafult is `0` to enable the default response.  
+    - `manufSpec` (_Number_): Tells if this is a manufacturer-specific command. Default is `0`.  
+    - `disDefaultRsp` (_Number_): Disable default response. Default is `0` to enable the default response.  
 5. `callback` (_Function_): `function (err, rsp) { }`. Please refer to [**Arguments** in functional command table](https://github.com/zigbeer/zcl-packet#FuncCmdTbl) to learn more about the functional command `rsp` object.  
 
 **Returns:**  
@@ -710,8 +759,8 @@ ep.functional('genOnOff', 'toggle', {}, function (err, rsp) {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_bind"></a>
 ### .bind(cId, dstEpOrGrpId[, callback])
 Bind this endpoint to the other endpoint or to a group with the specified cluster.  
@@ -744,8 +793,8 @@ ep1.bind('genOnOff', 3, function (err) {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_unbind"></a>
 ### .unbind(cId, dstEpOrGrpId[, callback])
 Unbind this endpoint from the other endpoint or from a group with the specified cluster.  
@@ -774,8 +823,8 @@ ep1.unbind('genOnOff', 3, function (err) {
 });
 ```
 
-<br />
 *************************************************
+
 <a name="API_dump"></a>
 ### .dump()
 Dump the endpoint record.  
