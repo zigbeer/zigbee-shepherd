@@ -139,6 +139,7 @@ This module provides you with **ZShepherd** and **Endpoint** classes.
     * [.getNwkAddr()](#API_getNwkAddr)  
     * [.foundation()](#API_foundation)  
     * [.functional()](#API_functional)  
+    * [.read()](#API_read)  
     * [.bind()](#API_bind)  
     * [.unbind()](#API_unbind)  
     * [.dump()](#API_dump)  
@@ -756,6 +757,31 @@ ep.functional('genOnOff', 'toggle', {}, function (err, rsp) {
 //     cmdId: 2,
 //     statusCode: 0
 // }
+});
+```
+
+*************************************************
+
+<a name="API_read"></a>
+### .read(cId, attrId, callback)
+The shorthand to read a single attribute.  
+
+**Arguments:**  
+
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table).  
+2. `attrId` (_Object_ | _Array_): [Attribute id](https://github.com/zigbeer/zcl-id/blob/master/definitions/cluster_defs.json) of which attribute you like to read.  
+3. `callback` (_Function_): `function (err, data) { }`. This `data` is the attribute value.
+
+**Returns:**  
+
+* _none_  
+
+**Examples:**  
+
+```js
+ep.read('genBasic', 'manufacturerName', function (err, data) {
+    if (!err)
+        console.log(data);    // 'TexasInstruments'
 });
 ```
 
