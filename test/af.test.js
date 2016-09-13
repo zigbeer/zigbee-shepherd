@@ -140,6 +140,10 @@ function fireFakeZclRawRsp(dstNwkAddr, dstEpId, srcEpId, zclBuffer, cid) {
 
 // af is an inner module, don't have to check all the arguments things
 describe('APIs Arguments Check for Throwing Error', function() {
+    before(function () {
+        af(controller);
+    });
+
     describe('#.send', function() {
         it('should be a function', function () {
             expect(af.send).to.be.a('function');
@@ -628,6 +632,10 @@ describe('APIs Arguments Check for Throwing Error', function() {
 });
 
 describe('Module Methods Check', function() {
+    before(function () {
+        af(controller);
+    });
+
     describe('#.send - by delegator', function() {
         it('if srsp status !== 0, === 1, reject', function (done) {
             var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
