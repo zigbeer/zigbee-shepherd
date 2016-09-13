@@ -5,7 +5,7 @@ var sinon = require('sinon'),
     expect = require('chai').expect,
     Q = require('q');
 
-var af = require('../lib/components/af')(controller),
+var af = require('../lib/components/af'),
     Device  = require('../lib/model/device'),
     Endpoint  = require('../lib/model/endpoint'),
     Coord  = require('../lib/model/coord'),
@@ -141,7 +141,7 @@ function fireFakeZclRawRsp(dstNwkAddr, dstEpId, srcEpId, zclBuffer, cid) {
 // af is an inner module, don't have to check all the arguments things
 describe('APIs Arguments Check for Throwing Error', function() {
     before(function () {
-        af(controller);
+        af = require('../lib/components/af')(controller);
     });
 
     describe('#.send', function() {
@@ -633,7 +633,7 @@ describe('APIs Arguments Check for Throwing Error', function() {
 
 describe('Module Methods Check', function() {
     before(function () {
-        af(controller);
+        af = require('../lib/components/af')(controller);
     });
 
     describe('#.send - by delegator', function() {

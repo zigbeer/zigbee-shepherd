@@ -35,7 +35,7 @@ var zApp = new Zive({ profId: 0x0104, devId: 6 }, new Ziee());
 
 describe('Top Level of Tests', function () {
     before(function (done) {
-        fs.stat('../lib/database/dev.db', function (err, stats) {console.log(arguments);
+        fs.stat('../lib/database/dev.db', function (err, stats) {
             if (err) {
                 done();
             } else if (stats.isFile()) {
