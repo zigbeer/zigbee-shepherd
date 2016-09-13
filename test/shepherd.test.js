@@ -1,20 +1,19 @@
 var Q = require('q'),
+    Zive = require('zive'),
+    Ziee = require('ziee'),
     chai = require('chai'),
     sinon = require('sinon'),
     sinonChai = require('sinon-chai'),
     expect = chai.expect;
 
-var //af = require('../lib/components/af')(controller),
+var Shepherd = require('../index.js'),
+    Coord  = require('../lib/model/coord'),
     Device  = require('../lib/model/device'),
-    Endpoint  = require('../lib/model/endpoint'),
-    Coord  = require('../lib/model/coord');
-    //Coordpoint  = require('../lib/model/coordpoint');
+    Endpoint  = require('../lib/model/endpoint');
 
 chai.use(sinonChai);
 
-var Shepherd = require('../index.js');
-
-var coordDev = new Coord({
+var coordinator = new Coord({
     type: 0,
     ieeeAddr: '0x00124b00019c2ee9',
     nwkAddr: 0,
@@ -30,14 +29,7 @@ var dev1 = new Device({
     epList: [ 1 ]
 });
 
-var dev2 = new Device({
-    type: 1,
-    ieeeAddr: '0x0123456789abcdef',
-    nwkAddr: 200,
-    manufId: 20,
-    epList: [ 1 ]
-});
-
+var zApp = new Zive({ profId: 0x0104, devId: 6 }, new Ziee());
 
 describe('Constructor Check', function () {
     var shepherd;
@@ -151,6 +143,7 @@ describe('Functional Check', function () {
 
     shepherd.controller.request = function (subsys, cmdId, valObj, callback) {
         var deferred = Q.defer();
+
         process.nextTick(function () {
             deferred.resolve({ status: 0 });
         });
@@ -165,7 +158,7 @@ describe('Functional Check', function () {
 
         it('should trigger permitJoin counter and event when permitJoin invoked - shepherd is enabled.', function (done) {
             shepherd._enabled = true;
-            shepherd.on('permitJoining', function (joinTime) {
+            shepherd.once('permitJoining', function (joinTime) {
                 shepherd._enabled = false;
                 if (joinTime === 3)
                     done();
@@ -185,7 +178,7 @@ describe('Functional Check', function () {
                     var deferred = Q.defer();
 
                     shepherd._enabled = true;
-                    shepherd.controller._coord = coordDev;
+                    shepherd.controller._coord = coordinator;
                     deferred.resolve();
 
                     setTimeout(function () {
@@ -224,36 +217,198 @@ describe('Functional Check', function () {
         });
     });
 
-    describe('#.find', function () {
-        it('should find nothing', function () {
-            expect(shepherd.find('nothing', 1)).to.be.undefined;
+/*    describe('#.reset', function () {
+        this.timeout(20000);
+        it('should reset - soft', function (done) {
+            var initCoordStub = sinon.stub(shepherd.controller, 'initCoord', function (callback) {
+                var deferred = Q.defer();
+
+                shepherd._enabled = true;
+                deferred.resolve();
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            shepherd.controller.once('SYS:resetInd', function () {
+                setTimeout(function () {
+                    initCoordStub.restore();
+                    done();
+                }, 1000);
+            });
+
+            shepherd.reset('soft').done();
+        });
+
+        it('should reset - hard', function (done) {
+            var initCoordStub = sinon.stub(shepherd.controller, 'initCoord', function (callback) {
+                var deferred = Q.defer();
+
+                shepherd._enabled = true;
+                deferred.resolve();
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            shepherd.controller.once('SYS:resetInd', function () {
+                setTimeout(function () {
+                    initCoordStub.restore();
+                    done();
+                }, 1000);
+            });
+
+            shepherd.reset('hard').done();
+        });
+    });
+*/
+    describe('#.info', function () {
+        it('should get correct info about the shepherd', function () {
+            var getNwkInfoStub = sinon.stub(shepherd.controller, 'getNwkInfo').returns({
+                    state: 'Coordinator',
+                    channel: 11,
+                    panId: '0x7c71',
+                    extPanId: '0xdddddddddddddddd',
+                    ieeeAddr: '0x00124b0001709887',
+                    nwkAddr: 0,
+                    joinTimeLeft: 49
+                }),
+                shpInfo = shepherd.info();
+
+            expect(shpInfo.enabled).to.be.true;
+            expect(shpInfo.net).to.be.deep.equal({ state: 'Coordinator', channel: 11, panId: '0x7c71', extPanId: '0xdddddddddddddddd', ieeeAddr: '0x00124b0001709887', nwkAddr: 0 });
+            expect(shpInfo.joinTimeLeft).to.be.equal(49);
+            getNwkInfoStub.restore();
+        });
+    });
+
+    describe('#.mount', function () {
+        it('should mount zApp', function (done) {
+            var coordStub = sinon.stub(shepherd.controller.querie, 'coord').returns({});
+
+            shepherd.mount(zApp, function (err, epId) {
+                if (!err) {
+                    coordStub.restore();
+                    done();
+                }
+            });
         });
     });
 
     describe('#.list', function () {
-        it('should list 2 devices', function (done) {
+        this.timeout(60000);
+
+        it('should list one devices', function (done) {
             shepherd._registerDev(dev1).then(function () {
-                return shepherd._registerDev(dev2);
-            }).then(function () {
                 var devList = shepherd.list();
-                expect(devList.length).to.be.equal(2);
+                expect(devList.length).to.be.equal(1);
                 expect(devList[0].type).to.be.equal(1);
                 expect(devList[0].ieeeAddr).to.be.equal('0x00137a00000161f2');
                 expect(devList[0].nwkAddr).to.be.equal(100);
                 expect(devList[0].manufId).to.be.equal(10);
                 expect(devList[0].epList).to.be.deep.equal([ 1 ]);
                 expect(devList[0].status).to.be.equal('offline');
-                expect(devList[1].type).to.be.equal(1);
-                expect(devList[1].ieeeAddr).to.be.equal('0x0123456789abcdef');
-                expect(devList[1].nwkAddr).to.be.equal(200);
-                expect(devList[1].manufId).to.be.equal(20);
-                expect(devList[1].epList).to.be.deep.equal([ 1 ]);
-                expect(devList[1].status).to.be.equal('offline');
                 done();
             }).fail(function (err) {
                 console.log(err);
+            }).done();
+        });
+    });
+
+    describe('#.find', function () {
+        it('should find nothing', function () {
+            expect(shepherd.find('nothing', 1)).to.be.undefined;
+        });
+    });
+
+    describe('#.lqi', function () {
+        it('should get lqi of the device', function (done) {
+            var requestStub = sinon.stub(shepherd.controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                process.nextTick(function () {
+                    deferred.resolve({
+                        srcaddr: 100,
+                        status: 0,
+                        neighbortableentries: 1,
+                        startindex: 0,
+                        neighborlqilistcount: 1,
+                        neighborlqilist: [
+                            {
+                                extPandId: '0xdddddddddddddddd',
+                                extAddr: '0x0123456789abcdef',
+                                nwkAddr: 200,
+                                deviceType: 1,
+                                rxOnWhenIdle: 0,
+                                relationship: 0,
+                                permitJoin: 0,
+                                depth: 1,
+                                lqi: 123
+                            }
+                        ]
+                    });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            shepherd.lqi('0x00137a00000161f2', function (err, data) {
+                if (!err) {
+                    expect(data[0].ieeeAddr).to.be.equal('0x0123456789abcdef');
+                    expect(data[0].lqi).to.be.equal(123);
+                    requestStub.restore();
+                    done();
+                }
             });
         });
     });
 
+    describe('#.remove', function () {
+        it('should remove the device', function (done) {
+            var requestStub = sinon.stub(shepherd.controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                process.nextTick(function () {
+                    deferred.resolve({ srcaddr: 100, status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            shepherd.remove('0x00137a00000161f2', function (err) {
+                if (!err) {
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.stop', function () {
+        it('should stop ok, permitJoin 0 should be fired, _enabled should be false', function (done) {
+            var joinFired = false,
+                stopCalled = false,
+                closeStub = sinon.stub(shepherd.controller, 'close', function (callback) {
+                    var deferred = Q.defer();
+
+                    deferred.resolve();
+
+                    return deferred.promise.nodeify(callback);
+                });
+
+            shepherd.once('permitJoining', function (joinTime) {
+                joinFired = true;
+                if (joinTime === 0 && !shepherd._enabled && stopCalled && joinFired){
+                    closeStub.restore();
+                    done();
+                }
+            });
+
+            shepherd.stop(function (err) {
+                stopCalled = true;
+                if (!err && !shepherd._enabled && stopCalled && joinFired) {
+                    closeStub.restore();
+                    done();
+                }
+            });
+        });
+    });
 });
