@@ -51,7 +51,7 @@ Let's do something fun with ZigBee! I hope you enjoy it!
     - CC2630/CC2650 (Not tested. I don't have the kit.)  
 
 * Firmware
-    - To use CC2530/31 as the coordinator, please download the [pre-built ZNP image](http://github.com) to your chip first. The pre-built image has compiled as a ZNP with ZDO callback, ZCL supports, and functions we need.  
+    - To use CC2530/31 as the coordinator, please download the [pre-built ZNP image](https://github.com/zigbeer/documents/tree/master/zigbee-shepherd) to your chip first. The pre-built image has compiled as a ZNP with ZDO callback, ZCL supports, and functions we need.  
 
 <br />
 
