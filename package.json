@@ -40,8 +40,8 @@
     "q": "^1.4.1",
     "zcl-id": "^0.1.4",
     "zcl-packet": "^0.1.0",
-    "ziee": "^0.0.9",
-    "zive": "^0.0.3",
+    "ziee": "^0.2.0",
+    "zive": "^0.1.0",
     "zstack-constants": "^0.1.0"
   },
   "devDependencies": {
