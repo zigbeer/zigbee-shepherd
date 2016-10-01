@@ -66,7 +66,6 @@ describe('Constructor Check', function () {
     it('should has all correct members after new', function () {
         var controller = new Controller({}, { path: '/dev/ttyUSB0' });
 
-        expect(controller.initCoord).to.be.a('function');
         expect(controller._shepherd).to.be.an('object');
         expect(controller._coord).to.be.null;
         expect(controller._znp).to.be.an('object');

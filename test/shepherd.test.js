@@ -89,7 +89,7 @@ describe('Top Level of Tests', function () {
 
     describe('Constructor Check', function () {
         var shepherd;
-        before(function () {
+        before(function () {console.log(__dirname + '/database/dev.db');
             shepherd = new Shepherd('/dev/ttyUSB0', { defaultDbPath:  __dirname + '/database/dev.db' });
         });
 
@@ -298,7 +298,7 @@ describe('Top Level of Tests', function () {
 
         describe('#.mount', function () {
             it('should mount zApp', function (done) {
-                var coordStub = sinon.stub(shepherd.controller.querie, 'coord').returns({});
+                var coordStub = sinon.stub(shepherd.controller.querie, 'coordInfo').returns({});
 
                 shepherd.mount(zApp, function (err, epId) {
                     if (!err) {
@@ -401,40 +401,46 @@ describe('Top Level of Tests', function () {
         describe('#.reset', function () {
             this.timeout(20000);
             it('should reset - soft', function (done) {
-                var initCoordStub = sinon.stub(shepherd.controller, 'initCoord', function (callback) {
-                    var deferred = Q.defer();
-
-                    shepherd._enabled = true;
-                    deferred.resolve();
-
-                    return deferred.promise.nodeify(callback);
-                });
+                var stopStub = sinon.stub(shepherd, 'stop', function (callback) {
+                        var deferred = Q.defer();
+                        deferred.resolve();
+                        return deferred.promise.nodeify(callback);
+                    }),
+                    startStub = sinon.stub(shepherd, 'start', function (callback) {
+                        var deferred = Q.defer();
+                        deferred.resolve();
+                        return deferred.promise.nodeify(callback);
+                    });
 
                 shepherd.controller.once('SYS:resetInd', function () {
                     setTimeout(function () {
-                        initCoordStub.restore();
+                        stopStub.restore();
+                        startStub.restore();
                         done();
-                    }, 1000);
+                    }, 100);
                 });
 
                 shepherd.reset('soft').done();
             });
 
             it('should reset - hard', function (done) {
-                var initCoordStub = sinon.stub(shepherd.controller, 'initCoord', function (callback) {
-                    var deferred = Q.defer();
-
-                    shepherd._enabled = true;
-                    deferred.resolve();
-
-                    return deferred.promise.nodeify(callback);
-                });
+                var stopStub = sinon.stub(shepherd, 'stop', function (callback) {
+                        var deferred = Q.defer();
+                        deferred.resolve();
+                        return deferred.promise.nodeify(callback);
+                    }),
+                    startStub = sinon.stub(shepherd, 'start', function (callback) {
+                        var deferred = Q.defer();
+                        deferred.resolve();
+                        return deferred.promise.nodeify(callback);
+                    });
 
                 shepherd.controller.once('SYS:resetInd', function () {
                     setTimeout(function () {
-                        initCoordStub.restore();
+                        stopStub.restore();
+                        startStub.restore();
                         done();
-                    }, 1000);
+                    }, 100);
                 });
 
                 shepherd.reset('hard').done();
