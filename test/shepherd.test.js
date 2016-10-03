@@ -89,8 +89,8 @@ describe('Top Level of Tests', function () {
 
     describe('Constructor Check', function () {
         var shepherd;
-        before(function () {console.log(__dirname + '/database/dev.db');
-            shepherd = new Shepherd('/dev/ttyUSB0', { defaultDbPath:  __dirname + '/database/dev.db' });
+        before(function () {
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath:  __dirname + '/database/dev.db' });
         });
 
         it('should has all correct members after new', function () {
@@ -124,7 +124,7 @@ describe('Top Level of Tests', function () {
     describe('Signature Check', function () {
         var shepherd;
         before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { defaultDbPath:  __dirname + '/database/dev.db' });
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath:  __dirname + '/database/dev.db' });
             shepherd._enabled = true;
         });
 
@@ -197,7 +197,7 @@ describe('Top Level of Tests', function () {
     describe('Functional Check', function () {
         var shepherd;
         before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { defaultDbPath:  __dirname + '/database/dev1.db' });
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath:  __dirname + '/database/dev1.db' });
 
             shepherd.controller.request = function (subsys, cmdId, valObj, callback) {
                 var deferred = Q.defer();
@@ -211,8 +211,11 @@ describe('Top Level of Tests', function () {
         });
 
         describe('#.permitJoin', function () {
-            it('should throw if shepherd is not enabled when permitJoin invoked - shepherd is disabled.', function () {
-                expect(function () { return shepherd.permitJoin(3); }).to.throw(Error);
+            it('should not throw if shepherd is not enabled when permitJoin invoked - shepherd is disabled.', function (done) {
+                shepherd.permitJoin(3).fail(function (err) {
+                    if (err.message === 'Shepherd is not enabled.')
+                        done();
+                }).done();
             });
 
             it('should trigger permitJoin counter and event when permitJoin invoked - shepherd is enabled.', function (done) {
@@ -298,7 +301,9 @@ describe('Top Level of Tests', function () {
 
         describe('#.mount', function () {
             it('should mount zApp', function (done) {
-                var coordStub = sinon.stub(shepherd.controller.querie, 'coordInfo').returns({});
+                var coordStub = sinon.stub(shepherd.controller.querie, 'coordInfo', function (callback) {
+                    return Q({}).nodeify(callback);
+                });
 
                 shepherd.mount(zApp, function (err, epId) {
                     if (!err) {
