@@ -85,10 +85,8 @@ describe('Constructor Check', function () {
         });
 
         expect(controller.nextTransId).to.be.a('function');
-        expect(controller.setPermitJoinTime).to.be.a('function');
-        expect(controller.getPermitJoinTime).to.be.a('function');
-        expect(controller.joinTimeCountdown).to.be.a('function');
-        expect(controller._isRsetting).to.be.a('function');
+        expect(controller.permitJoinCountdown).to.be.a('function');
+        expect(controller.isResetting).to.be.a('function');
     });
 
     it('should throw if cfg is not an object', function () {
