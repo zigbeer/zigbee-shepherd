@@ -80,7 +80,7 @@ describe('Constructor Check', function () {
             panId: null,
             extPanId: null,
             ieeeAddr: null,
-            nwkAddr: 0,
+            nwkAddr: null,
             joinTimeLeft: 0,
         });
 
