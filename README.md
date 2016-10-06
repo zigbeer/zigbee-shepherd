@@ -119,7 +119,7 @@ This module provides you with **ZShepherd** and **Endpoint** classes.
 
 * **Endpoint** is the class for creating a software endpoint to represent the remote or local endpoint at server-side. This document uses `ep` to denote the instance of this class. You can invoke methods on an `ep` to operate the endpoint.  
 
-* ZShepherd APIs  
+* **ZShepherd APIs**  
     * [new ZShepherd()](#API_ZShepherd)  
     * [.start()](#API_start)  
     * [.stop()](#API_stop)  
@@ -133,7 +133,7 @@ This module provides you with **ZShepherd** and **Endpoint** classes.
     * [.remove()](#API_remove)  
     * Events: [ready](#EVT_ready), [error](#EVT_error), [permitJoining](#EVT_permit), and [ind](#EVT_ind)  
 
-* Endpoint APIs  
+* **Endpoint APIs**  
     * [.getSimpleDesc()](#API_getSimpleDesc)  
     * [.getIeeeAddr()](#API_getIeeeAddr)  
     * [.getNwkAddr()](#API_getNwkAddr)  
@@ -153,19 +153,20 @@ Exposed by `require('zigbee-shepherd')`
 
 <a name="API_ZShepherd"></a>
 ### new ZShepherd(path[, opts])
-Create a new instance of the `ZShepherd` class. The created instance is a Zigbee gateway that runs with node.js.  
+Create a new instance of the `ZShepherd` class. The created instance is a ZigBee gateway that runs with node.js.  
 
 **Arguments:**  
 
 1. `path` (_String_): A string that refers to system path of the serial port connecting to your ZNP (CC253X), e.g., `'/dev/ttyUSB0'`.  
-2. `opts` (_Object_): This value-object has two properties `sp` and `net` to configure the serial port and zigbee network settings.  
-    - `sp` (_Object_): An optional object to [configure the seiralport](https://www.npmjs.com/package/serialport#serialport-path-options-opencallback). The following example shows the options with its default value.  
+2. `opts` (_Object_): This value-object has three properties `sp`, `dbPath` and `net` to configure the serial port and zigbee network settings.  
+    - `sp` (_Object_): An optional object to [configure the seiralport](https://www.npmjs.com/package/serialport#serialport-path-options-opencallback). Default is `{ baudrate: 115200, rtscts: true }`.  
     - `net` (_Object_): An object to configure the network settings, and all properties in this object are optional. The descriptions are shown in the following table.  
+    - `dbPath` (_String_): Set database file path, default is `__dirname + '/database/dev.db'`.
 
 | Property           | Type    | Mandatory | Description                                                                                                                                                    | Default value                                                                                      |
 |--------------------|---------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
 | panId              | Number  | Optional  | Identifies the ZigBee PAN. This id should be a value between 0 and 0x3FFF. You can also set it to 0xFFFF to let ZNP choose a random PAN-ID on its own.         | 0xFFFF                                                                                             |
-| channelList        | Array   | Optional  | Picks possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.              | [ 14 ]                                                                                             |
+| channelList        | Array   | Optional  | Picks possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.              | [ 11 ]                                                                                             |
 | precfgkey          | Array   | Optional  | This is for securing and un-securing packets. It must be an array with 16 uint8 integers.                                                                      | [ 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F, 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0D ] |
 | precfgkeysEnable   | Boolean | Optional  | To distribute the security key to all devices in the network or not.                                                                                           | true                                                                                               |
 | startoptClearState | Boolean | Optional  | If this option is set, the device will clear its previous network state. This is typically used during application development.                                | false                                                                                              |
@@ -206,15 +207,21 @@ Connect to the ZNP and start shepherd.
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
 ```js
+// callback style
 shepherd.start(function (err) {
     if (!err)
         console.log('shepherd is now running.');
 });
+
+// promise style
+shepherd.start().then(function() {
+    console.log('shepherd is now running.');
+}).done();
 ```
 
 *************************************************
@@ -229,7 +236,7 @@ Disconnect from the ZNP and stop shepherd.
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -253,22 +260,29 @@ Reset the ZNP.
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
 ```js
+// hard reset
 shepherd.reset(0, function (err) {
     if (!err)
         console.log('reset successfully.');
-})
+});
+
+// soft reset
+shepherd.reset('soft', function (err) {
+    if (!err)
+        console.log('reset successfully.');
+});
 ```
 
 *************************************************
 
 <a name="API_permitJoin"></a>
 ### .permitJoin(time[, type][, callback])
-Allow or disallow devices to join the network.  
+Allow or disallow devices to join the network. A `permitJoining` event will be fired every tick of countdown (per second) when `shepherd` is allowing device to join its network.  
 
 **Arguments:**  
 
@@ -278,15 +292,23 @@ Allow or disallow devices to join the network.
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
 ```js
+shepherd.on('permitJoining', function (joinTimeLeft) {
+    console.log(joinTimeLeft);
+});
+
+// default is allow devices to join coordinator or routers
 shepherd.permitJoin(60, function (err) {
     if (!err)
         console.log('ZNP is now allowing devices to join the network for 60 seconds.');
-})
+});
+
+// allow device only to join coordinator
+shepherd.permitJoin(60, 'coord');
 ```
 
 *************************************************
@@ -345,7 +367,7 @@ Mounts a zigbee application `zApp` that will be registered to the coordinator as
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -470,7 +492,7 @@ Query the link quality index from a certain device by its ieee address.
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -507,7 +529,7 @@ Remove the device from the network.
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -543,7 +565,7 @@ Fired when there is an error occurs.
 <a name="EVT_permit"></a>
 ### Event: 'permitJoining'
 Listener: `function (joinTimeLeft) {}`  
-Fired when the Server is allowing for devices to join the network, where `joinTimeLeft` is number of seconds left to allow devices to join the network. This event will be triggered at each tick of countdown.  
+Fired when the Server is allowing for devices to join the network, where `joinTimeLeft` is number of seconds left to allow devices to join the network. This event will be triggered at each tick of countdown (per second).  
 
 *************************************************
 
@@ -560,42 +582,65 @@ Fired when there is an incoming indication message. The `msg` is an object with 
 
 
 * ##### devIncoming  
-    When there is a ZigBee Device incoming to the network, server will fire an `'ind'` event along with this type of indication.  
+    Fired when there is a ZigBee Device incoming to the network.  
 
     * msg.type: `'devIncoming'`  
     * msg.endpoints: `[ ep, ... ]`  
     * msg.data: `'0x00124b0001ce4beb'`, the ieee address of which device is incoming.  
+    ```js
+    {
+        type: 'devIncoming',
+        endpoints: [ ep_instance, ep_instance ],
+        data: '0x00124b0001ce4beb'
+    }
+    ```
 
 * ##### devLeaving  
-    When there is a ZigBee Device leaving the network, server will fire an `'ind'` event along with this type of indication.  
+    Fired when there is a ZigBee Device leaving the network.  
 
     * msg.type: `'devLeaving'`  
     * msg.endpoints: `[ epId, ... ]`, the endpoint id of which endpoint is leaving  
     * msg.data: `'0x00124b0001ce4beb'`, the ieee address of which device is leaving.  
+    ```js
+    {
+        type: 'devLeaving',
+        endpoints: [ epId, epId ],
+        data: '0x00124b0001ce4beb'
+    }
+    ```
 
 * ##### devChange  
-    When the Server perceives that there is any change of _Attributes_ from ZCL foundation/functional responses, server will fire an `'ind'` event along this type of indication.  
+    Fired when the Server perceives that there is any change of _Attributes_ from ZCL foundation/functional responses.  
 
     * msg.type: `'devChange'`  
     * msg.endpoints: `[ep]`  
     * msg.data: Content of the changes. This object has fields of `cid` and `data`.  
-
-        ```js
-        // change of the 'genOnOff' cluster
-        {
+    ```js
+    {
+        type: 'devChange',
+        endpoints: [ ep_instance ],
+        data: {
             cid: 'genOnOff',
             data: {
                 onOff: 1
             }
         }
-        ```
+    }
+    ```
 
 * ##### devStatus  
-    When there is a ZigBee Device going online or offline, server will fire an `'ind'` event along this type of indication.  
+    Fired when there is a ZigBee Device going online or going offline.  
 
     * msg.type: `'devStatus'`  
     * msg.endpoints: `[ ep, ... ]`  
     * msg.data: `'online'` or `'offline'`  
+    ```js
+    {
+        type: 'devStatus',
+        endpoints: [ ep_instance, ep_instance ],
+        data: 'online'
+    }
+    ```
 
 *************************************************
 
@@ -701,7 +746,7 @@ Send ZCL foundation command to this endpoint. Response will be passed through se
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -744,7 +789,7 @@ Send ZCL functional command to this endpoint. The response will be passed to the
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -774,7 +819,7 @@ The shorthand to read a single attribute.
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -799,7 +844,7 @@ Bind this endpoint to the other endpoint or to a group with the specified cluste
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 
@@ -833,7 +878,7 @@ Unbind this endpoint from the other endpoint or from a group with the specified 
 
 **Returns:**  
 
-* _none_  
+* (_Promise_): promise  
 
 **Examples:**  
 

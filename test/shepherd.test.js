@@ -97,9 +97,10 @@ describe('Top Level of Tests', function () {
             expect(shepherd._startTime).to.be.equal(0);
             expect(shepherd._enabled).to.be.false;
             expect(shepherd._zApp).to.be.an('array');
-            expect(shepherd._devbox).to.be.an('object');
             expect(shepherd.controller).to.be.an('object');
             expect(shepherd.af).to.be.an('object');
+            expect(shepherd._dbPath).to.be.equal( __dirname + '/database/dev.db');
+            expect(shepherd._devbox).to.be.an('object');
         });
 
         it('should throw if path is not a string', function () {
@@ -281,7 +282,7 @@ describe('Top Level of Tests', function () {
 
         describe('#.info', function () {
             it('should get correct info about the shepherd', function () {
-                var getNwkInfoStub = sinon.stub(shepherd.controller, 'getNwkInfo').returns({
+                var getNwkInfoStub = sinon.stub(shepherd.controller, 'getNetInfo').returns({
                         state: 'Coordinator',
                         channel: 11,
                         panId: '0x7c71',
@@ -302,12 +303,16 @@ describe('Top Level of Tests', function () {
         describe('#.mount', function () {
             it('should mount zApp', function (done) {
                 var coordStub = sinon.stub(shepherd.controller.querie, 'coordInfo', function (callback) {
-                    return Q({}).nodeify(callback);
-                });
+                        return Q({}).nodeify(callback);
+                    }),
+                    syncStub = sinon.stub(shepherd._devbox, 'sync', function (id, callback) {
+                        return Q({}).nodeify(callback);
+                    });
 
                 shepherd.mount(zApp, function (err, epId) {
                     if (!err) {
                         coordStub.restore();
+                        syncStub.restore();
                         done();
                     }
                 });
