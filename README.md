@@ -1,8 +1,6 @@
 # zigbee-shepherd
 An open source ZigBee gateway solution with node.js.  
 
-<br />
-
 [![NPM](https://nodei.co/npm/zigbee-shepherd.png?downloads=true)](https://nodei.co/npm/zigbee-shepherd/)  
 
 [![Travis branch](https://img.shields.io/travis/zigbeer/zigbee-shepherd/master.svg?maxAge=2592000)](https://travis-ci.org/zigbeer/zigbee-shepherd)
@@ -17,10 +15,9 @@ An open source ZigBee gateway solution with node.js.
 2. [Installation](#Installation)  
 3. [Usage](#Usage)  
 4. [APIs and Events](#APIs)  
-    * ZShepherd Class
-    * Endpoint Class
-5. [Contributors](#Contributors)  
-6. [License](#License)  
+5. [Debug Messages](#Debug)  
+6. [Contributors](#Contributors)  
+7. [License](#License)  
 
 <br />
 
@@ -158,7 +155,7 @@ Create a new instance of the `ZShepherd` class. The created instance is a ZigBee
 **Arguments:**  
 
 1. `path` (_String_): A string that refers to system path of the serial port connecting to your ZNP (CC253X), e.g., `'/dev/ttyUSB0'`.  
-2. `opts` (_Object_): This value-object has three properties `sp`, `dbPath` and `net` to configure the serial port and zigbee network settings.  
+2. `opts` (_Object_): This value-object has three properties `sp`, `net` and `dbPath` to configure the serial port, zigbee network settings and database file path.  
     - `sp` (_Object_): An optional object to [configure the seiralport](https://www.npmjs.com/package/serialport#serialport-path-options-opencallback). Default is `{ baudrate: 115200, rtscts: true }`.  
     - `net` (_Object_): An object to configure the network settings, and all properties in this object are optional. The descriptions are shown in the following table.  
     - `dbPath` (_String_): Set database file path, default is `__dirname + '/database/dev.db'`.
@@ -307,7 +304,7 @@ shepherd.permitJoin(60, function (err) {
         console.log('ZNP is now allowing devices to join the network for 60 seconds.');
 });
 
-// allow device only to join coordinator
+// allow devices only to join coordinator
 shepherd.permitJoin(60, 'coord');
 ```
 
@@ -930,28 +927,28 @@ ep.dump();
 //     outClusterList: [ 3, 6 ],
 //     clusters: {
 //         genBasic: {
-//             dir: 1,
+//             dir: { value: 1 },    // in Cluster
 //             attrs: {
-//                 hwVersion: { value: 0 },
-//                 manufacturerName: { value: 'TexasInstruments' },
-//                 modelId: { value: 'TI0001          ' },
-//                 dateCode: { value: '20060831        ' },
-//                 powerSource: { value: 1 },
-//                 locationDesc: { value: '                ' },
-//                 physicalEnv: { value: 0 },
-//                 deviceEnabled: { value: 1 }
+//                 hwVersion: 0,
+//                 manufacturerName: 'TexasInstruments',
+//                 modelId: 'TI0001          ',
+//                 dateCode: '20060831        ',
+//                 powerSource: 1,
+//                 locationDesc: '                ',
+//                 physicalEnv: 0,
+//                 deviceEnabled: 1
 //             }
 //         },
 //         genIdentify: {
-//             dir: 3,
+//             dir: { value: 3 },    // in and out Cluster
 //             attrs: {
-//                 identifyTime: { value: 0 }
+//                 identifyTime: 0
 //             }
 //         },
 //         genOnOff:{
-//             dir: 2,
+//             dir: { value: 2 },    // out Cluster
 //             attrs: {
-//                 onOff: { value: 0 }
+//                 onOff: 0
 //             }
 //         }
 //     }
@@ -962,8 +959,51 @@ ep.dump();
 
 <br />
 
+<a name="Debug"></a>
+## 5. Debug Messages  
+
+Like many node.js modules do, **zigbee-shepherd** utilizes [debug](https://www.npmjs.com/package/debug) module to print out messages that may help in debugging. The namespaces include `zigbee-shepherd`, `zigbee-shepherd:init`, `zigbee-shepherd:request`, and `zigbee-shepherd:msgHdlr`. The `zigbee-shepherd:request` logs requests that shepherd sends to ZNP, and `zigbee-shepherd:msgHdlr` logs the indications that comes from endpoints.  
+
+If you like to print the debug messages, run your app.js with the DEBUG environment variable:
+
+```sh
+$ DEBUG=zigbee-shepherd* app.js          # use wildcard to print all zigbee-shepherd messages
+$ DEBUG=zigbee-shepherd:msgHdlr app.js   # if you are only interested in zigbee-shepherd:msgHdlr messages
+```
+
+Example:
+
+```sh
+jack@ubuntu:~/zigbeer/zigbee-shepherd$ DEBUG=zigbee-shepherd* node server.js
+  zigbee-shepherd:init zigbee-shepherd booting... +0ms
+  ...
+  zigbee-shepherd:init Start the ZNP as a coordinator... +1ms
+  zigbee-shepherd:request REQ --> ZDO:startupFromApp +0ms
+  zigbee-shepherd:msgHdlr IND <-- ZDO:stateChangeInd +839ms
+  zigbee-shepherd:init Now the ZNP is a coordinator. +1ms
+  zigbee-shepherd:request REQ --> SAPI:getDeviceInfo +2ms
+  zigbee-shepherd:request RSP <-- SAPI:getDeviceInfo +25ms
+  ...
+  zigbee-shepherd:request REQ --> ZDO:nodeDescReq +0ms
+  zigbee-shepherd:msgHdlr IND <-- ZDO:nodeDescRsp +28ms
+  zigbee-shepherd:request REQ --> ZDO:activeEpReq +1ms
+  zigbee-shepherd:msgHdlr IND <-- ZDO:activeEpRsp +19ms
+  zigbee-shepherd:request REQ --> ZDO:mgmtPermitJoinReq +1ms
+  zigbee-shepherd:msgHdlr IND <-- ZDO:permitJoinInd +23ms
+  zigbee-shepherd:msgHdlr IND <-- ZDO:mgmtPermitJoinRsp +0ms
+  zigbee-shepherd:init Loading devices from database done. +59ms
+  zigbee-shepherd:init zigbee-shepherd is up and ready. +1ms
+  ...
+  zigbee-shepherd:request REQ --> AF:dataRequest, transId: 1 +12ms
+  zigbee-shepherd:request RSP <-- AF:dataRequest, status: 0 +20ms
+  zigbee-shepherd:msgHdlr IND <-- AF:dataConfirm, transId: 1 +24ms
+  zigbee-shepherd:msgHdlr IND <-- AF:incomingMsg, transId: 0 +40ms
+```
+
+<br />
+
 <a name="Contributors"></a>
-## 5. Contributors  
+## 6. Contributors  
 
 * [Jack Wu](https://www.npmjs.com/~jackchased)  
 * [Hedy Wang](https://www.npmjs.com/~hedywings)  
@@ -972,7 +1012,7 @@ ep.dump();
 <br />
 
 <a name="License"></a>
-## 6. License  
+## 7. License  
 
 The MIT License (MIT)
 
