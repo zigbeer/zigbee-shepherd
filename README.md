@@ -24,7 +24,12 @@ An open source ZigBee gateway solution with node.js.
 <a name="Overview"></a>
 ## 1. Overview  
 
-**zigbee-shepherd** is an open source ZigBee gateway solution with node.js. It uses TI's [CC253X](http://www.ti.com/lsds/ti/wireless_connectivity/zigbee/overview.page) wireless SoC as a [zigbee network processor (ZNP)](http://www.ti.com/lit/an/swra444/swra444.pdf), and takes the ZNP approach with [cc-znp](https://github.com/zigbeer/cc-znp) to run the CC253X as a coordinator and to run zigbee-shepherd as the host. zigbee-shepherd has carried many network managing things for you, i.e., storing(/reloading) connected devices and endpoints records to(/from) the built-in database, permission of device joining, endpoints binding, and indications of device incoming and leaving.  
+**zigbee-shepherd** is an open source ZigBee gateway solution with node.js. It uses TI's [CC253X](http://www.ti.com/lsds/ti/wireless_connectivity/zigbee/overview.page) wireless SoC as a [zigbee network processor (ZNP)](http://www.ti.com/lit/an/swra444/swra444.pdf), and takes the ZNP approach with [cc-znp](https://github.com/zigbeer/cc-znp) to run the CC253X as a coordinator and to run zigbee-shepherd as the host.
+
+Here is a [**demo webapp**](https://github.com/zigbeer/zigbee-demo#readme) that shows a simple smart home application built with **zigbee-shepherd**.  
+![ZigBee Network](https://github.com/zigbeer/documents/blob/master/zigbee-shepherd/zigbee_net.png)
+
+zigbee-shepherd has carried many network managing things for you, i.e., storing(/reloading) connected devices and endpoints records to(/from) the built-in database, permission of device joining, endpoints binding, and indications of device incoming and leaving.  
   
 This gateway solution also works well with the ZigBee ZCL application framework - [**_zive_**](https://github.com/zigbeer/zive) to help developers build zigbee application with a real endpoint firmed on the coordinator. With **_zive_**, third-parties can independently make their zigbee applications as plugins without knowing of the z-stack behavior. The concept of plugin is really cool. When you like a zigbee IAS (Intruder Alarm System) application on your gateway, just download the plugin and register it to zigbee-shepherd, and now you have an IAS service at your home in seconds. (I'm now working on a CIE (Control and Indicating Equipment) plugin for the zigbee IAS application.)  
   
@@ -48,7 +53,7 @@ Let's do something fun with ZigBee! I hope you enjoy it!
     - CC2630/CC2650 (Not tested. I don't have the kit.)  
 
 * Firmware
-    - To use CC2530/31 as the coordinator, please download the [pre-built ZNP image](https://github.com/zigbeer/documents/tree/master/zigbee-shepherd) to your chip first. The pre-built image has compiled as a ZNP with ZDO callback, ZCL supports, and functions we need.  
+    - To use CC2530/31 as the coordinator, please download the [**pre-built ZNP image**](https://github.com/zigbeer/documents/tree/master/zigbee-shepherd) to your chip first. The pre-built image has compiled as a ZNP with ZDO callback, ZCL supports, and functions we need.  
 
 <br />
 
