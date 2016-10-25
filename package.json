@@ -1,6 +1,6 @@
 {
   "name": "zigbee-shepherd",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "An open source ZigBee gateway solution with node.js.",
   "main": "index.js",
   "scripts": {
