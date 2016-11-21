@@ -1,5 +1,5 @@
 # zigbee-shepherd
-An open source ZigBee gateway solution with node.js.  
+An open source ZigBee gateway solution with node.js  
 
 [![NPM](https://nodei.co/npm/zigbee-shepherd.png?downloads=true)](https://nodei.co/npm/zigbee-shepherd/)  
 
@@ -31,9 +31,9 @@ Here is a [**demo webapp**](https://github.com/zigbeer/zigbee-demo#readme) that 
 
 zigbee-shepherd has carried many network managing things for you, i.e., storing(/reloading) connected devices and endpoints records to(/from) the built-in database, permission of device joining, endpoints binding, and indications of device incoming and leaving.  
   
-This gateway solution also works well with the ZigBee ZCL application framework - [**_zive_**](https://github.com/zigbeer/zive) to help developers build zigbee application with a real endpoint firmed on the coordinator. With **_zive_**, third-parties can independently make their zigbee applications as plugins without knowing of the z-stack behavior. The concept of plugin is really cool. When you like a zigbee IAS (Intruder Alarm System) application on your gateway, just download the plugin and register it to zigbee-shepherd, and now you have an IAS service at your home in seconds. (I'm now working on a CIE (Control and Indicating Equipment) plugin for the zigbee IAS application.)  
+This gateway solution also works well with the ZigBee ZCL application framework - [**_zive_**](https://github.com/zigbeer/zive) to help developers build zigbee application with a real endpoint on the coordinator. With **_zive_**, third-parties can independently make their zigbee applications as plugins without knowing of the z-stack behavior. The concept of the plugin is really cool. When you want a zigbee IAS (Intruder Alarm System) application on your gateway, just download the plugin and register it to zigbee-shepherd, and now you have an IAS service at your home in seconds. (I'm now working on a CIE (Control and Indicating Equipment) plugin for the zigbee IAS application.)  
   
-zigbee-shepherd provides a nice environment for front-end and back-end web developers to use their familiar language - _**JavaScript**_, to build ZigBee applications. With node.js, they can have their own RESTful APIs to bring ZigBee machines to web world, can push machines to the cloud, can have a great machine database, can create an account system, and can build any fascinating GUI and dashboard with many cool UI frameworks. With zigbee-shepherd, now web developers can do a lot of IoT things with ZigBee! It brings opportunities for app developers as well as opens another way of implementing IoT applications with ZigBee devices.  
+zigbee-shepherd provides a nice environment for front-end and back-end web developers to use their familiar language - _**JavaScript**_, to build ZigBee applications. With node.js, you can have your own RESTful APIs to bring ZigBee machines to web world, push machines to the cloud, have a great machine database, create an account system, and build any fascinating GUI and dashboard with many cool UI frameworks. With zigbee-shepherd, now web developers can do a lot of IoT things with ZigBee! It brings opportunities for app developers as well as opening another way of implementing IoT applications with ZigBee devices.  
   
 Let's do something fun with ZigBee! I hope you enjoy it!  
 
@@ -49,11 +49,11 @@ Let's do something fun with ZigBee! I hope you enjoy it!
 * Hardware
     - [SmartRF05EB (with CC2530EM)](http://www.ti.com/tool/cc2530dk)  
     - [CC2531 USB Stick](http://www.ti.com/tool/cc2531emk)  
-    - CC2538 (Not tested. I don't have the kit.)  
-    - CC2630/CC2650 (Not tested. I don't have the kit.)  
+    - CC2538 (Not tested yet. I don't have the kit.)  
+    - CC2630/CC2650 (Not tested yet. I don't have the kit.)  
 
 * Firmware
-    - To use CC2530/31 as the coordinator, please download the [**pre-built ZNP image**](https://github.com/zigbeer/documents/tree/master/zigbee-shepherd) to your chip first. The pre-built image has compiled as a ZNP with ZDO callback, ZCL supports, and functions we need.  
+    - To use CC2530/31 as the coordinator, please download the [**pre-built ZNP image**](https://github.com/zigbeer/documents/tree/master/zigbee-shepherd) to your chip first. The pre-built image has been compiled as a ZNP with ZDO callback, ZCL supports, and functions we need.  
 
 <br />
 
@@ -85,7 +85,7 @@ shepherd.start(function (err) {                 // start the server
 * Interact with remote endpoints, here is a quick example:
 
 ```js
-// find the joined endpoint by it's address and endpoint id
+// find the joined endpoint by its address and endpoint id
 var ep = shepherd.find('0x00124b0001ce4beb', 6);    // returns undefined if not found
 
 // use foundation command to read attributes from a remote endpoint
@@ -167,8 +167,8 @@ Create a new instance of the `ZShepherd` class. The created instance is a ZigBee
 
 | Property           | Type    | Mandatory | Description                                                                                                                                                    | Default value                                                                                      |
 |--------------------|---------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| panId              | Number  | Optional  | Identifies the ZigBee PAN. This id should be a value between 0 and 0x3FFF. You can also set it to 0xFFFF to let ZNP choose a random PAN-ID on its own.         | 0xFFFF                                                                                             |
-| channelList        | Array   | Optional  | Picks possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.              | [ 11 ]                                                                                             |
+| panId              | Number  | Optional  | Identify the ZigBee PAN. This id should be a value between 0 and 0x3FFF. You can also set it to 0xFFFF to let ZNP choose a random PAN-ID on its own.         | 0xFFFF                                                                                             |
+| channelList        | Array   | Optional  | Pick possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.              | [ 11 ]                                                                                             |
 | precfgkey          | Array   | Optional  | This is for securing and un-securing packets. It must be an array with 16 uint8 integers.                                                                      | [ 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F, 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0D ] |
 | precfgkeysEnable   | Boolean | Optional  | To distribute the security key to all devices in the network or not.                                                                                           | true                                                                                               |
 | startoptClearState | Boolean | Optional  | If this option is set, the device will clear its previous network state. This is typically used during application development.                                | false                                                                                              |
@@ -612,7 +612,7 @@ Fired when there is an incoming indication message. The `msg` is an object with 
     ```
 
 * ##### devChange  
-    Fired when the Server perceives that there is any change of _Attributes_ from ZCL foundation/functional responses.  
+    Fired when the Server perceives any changes of _Attributes_ from ZCL foundation/functional responses.  
 
     * msg.type: `'devChange'`  
     * msg.endpoints: `[ep]`  
@@ -655,7 +655,7 @@ This class provides you with methods to operate the remote endpoints or local en
 
 <a name="API_getSimpleDesc"></a>
 ### .getSimpleDesc()
-Returns simple descriptor of the endpoint.  
+Returns the simple descriptor of the endpoint.  
 
 **Arguments:**  
 
