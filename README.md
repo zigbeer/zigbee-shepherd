@@ -144,6 +144,7 @@ This module provides you with **ZShepherd** and **Endpoint** classes.
     * [.read()](#API_read)  
     * [.bind()](#API_bind)  
     * [.unbind()](#API_unbind)  
+    * [.report()](#API_report)  
     * [.dump()](#API_dump)  
 
 <br />
@@ -167,8 +168,8 @@ Create a new instance of the `ZShepherd` class. The created instance is a ZigBee
 
 | Property           | Type    | Mandatory | Description                                                                                                                                                    | Default value                                                                                      |
 |--------------------|---------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------|
-| panId              | Number  | Optional  | Identify the ZigBee PAN. This id should be a value between 0 and 0x3FFF. You can also set it to 0xFFFF to let ZNP choose a random PAN-ID on its own.         | 0xFFFF                                                                                             |
-| channelList        | Array   | Optional  | Pick possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.              | [ 11 ]                                                                                             |
+| panId              | Number  | Optional  | Identify the ZigBee PAN. This id should be a value between 0 and 0x3FFF. You can also set it to 0xFFFF to let ZNP choose a random PAN-ID on its own.           | 0xFFFF                                                                                             |
+| channelList        | Array   | Optional  | Pick possible channels for your ZNP to start a PAN with. If only a single channel is given, ZNP will start a PAN with the channel you've picked.               | [ 11 ]                                                                                             |
 | precfgkey          | Array   | Optional  | This is for securing and un-securing packets. It must be an array with 16 uint8 integers.                                                                      | [ 0x01, 0x03, 0x05, 0x07, 0x09, 0x0B, 0x0D, 0x0F, 0x00, 0x02, 0x04, 0x06, 0x08, 0x0A, 0x0C, 0x0D ] |
 | precfgkeysEnable   | Boolean | Optional  | To distribute the security key to all devices in the network or not.                                                                                           | true                                                                                               |
 | startoptClearState | Boolean | Optional  | If this option is set, the device will clear its previous network state. This is typically used during application development.                                | false                                                                                              |
@@ -578,7 +579,7 @@ Fired when there is an incoming indication message. The `msg` is an object with 
 
 | Property       | Type                 | Description                                                                                                                                                    |
 |----------------|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| type           | String               | Indication type, can be `'devIncoming'`, `'devLeaving'`, `'devChange'`, and `'devStatus'`.                                                                     |
+| type           | String               | Indication type, can be `'devIncoming'`, `'devLeaving'`, `'devChange'`, `'devStatus'`, and `'attReport'`.                                                      |
 | endpoints      | Object[] \| Number[] | An array of the endpoint instance, except that when `type === 'devLeaving'`, endpoints will be an array of the endpoint id (since endpoints have been removed) |
 | data           | Depends              | Data along with the indication, which depends on the type of indication                                                                                        |
 
@@ -641,6 +642,25 @@ Fired when there is an incoming indication message. The `msg` is an object with 
         type: 'devStatus',
         endpoints: [ ep_instance, ep_instance ],
         data: 'online'
+    }
+    ```
+
+* ##### attReport  
+    Fired when the ZigBee Device report attributes.  
+
+    * msg.type: `'attReport'`  
+    * msg.endpoints: `[ep]`  
+    * msg.data: Content of the report. This object has fields of `cid` and `data`.  
+    ```js
+    {
+        type: 'attReport',
+        endpoints: [ ep_instance ],
+        data: {
+            cid: 'msTemperatureMeasurement',
+            data: {
+                measuredValue: 2515
+            }
+        }
     }
     ```
 
@@ -738,13 +758,13 @@ Send ZCL foundation command to this endpoint. Response will be passed through se
 
 **Arguments:**  
 
-1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table), i.e. `'genBasic'`, `0`, `'genOnOff'`, `6`.  
-2. `cmd` (_String_ | _Number_): [ZCL foundation command id](https://github.com/zigbeer/zcl-packet#FoundCmdTbl), i.e. `'read'`, `0`, `'discover'`, `12`.  
-3. `zclData` (_Object_ | _Array_): [zclData](https://github.com/zigbeer/zcl-packet#FoundCmdTbl), which depends on the specified command.  
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id/wiki#Table), i.e. `'genBasic'`, `0`, `'genOnOff'`, `6`.  
+2. `cmd` (_String_ | _Number_): [ZCL foundation command id](https://github.com/zigbeer/zcl-packet/wiki/6.-Appendix#FoundCmdTbl), i.e. `'read'`, `0`, `'discover'`, `12`.  
+3. `zclData` (_Object_ | _Array_): [zclData](https://github.com/zigbeer/zcl-packet/wiki/6.-Appendix#FoundCmdTbl), which depends on the specified command.  
 4. `cfg` (_Object_):  
     - `manufSpec` (_Number_): Tells if this is a manufacturer-specific command. Default is `0`.  
     - `disDefaultRsp` (_Number_): Disable default response. Default is `0` to enable the default response.  
-5. `callback` (_Function_): `function (err, rsp) { }`. Please refer to [**Payload** in foundation command table](https://github.com/zigbeer/zcl-packet#FoundCmdTbl) to learn more about the `rsp` object.  
+5. `callback` (_Function_): `function (err, rsp) { }`. Please refer to [**Payload** in foundation command table](https://github.com/zigbeer/zcl-packet/wiki/6.-Appendix#FoundCmdTbl) to learn more about the `rsp` object.  
 
 **Returns:**  
 
@@ -781,13 +801,13 @@ Send ZCL functional command to this endpoint. The response will be passed to the
 
 **Arguments:**  
 
-1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table).  
-2. `cmd` (_String_ | _Number_): [Functional command id](https://github.com/zigbeer/zcl-packet#FuncCmdTbl).  
-3. `zclData` (_Object_ | _Array_): [zclData](https://github.com/zigbeer/zcl-packet#FuncCmdTbl) depending on the given command.  
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id/wiki#Table).  
+2. `cmd` (_String_ | _Number_): [Functional command id](https://github.com/zigbeer/zcl-packet/wiki/6.-Appendix#FuncCmdTbl).  
+3. `zclData` (_Object_ | _Array_): [zclData](https://github.com/zigbeer/zcl-packet/wiki/6.-Appendix#FuncCmdTbl) depending on the given command.  
 4. `cfg` (_Object_):  
     - `manufSpec` (_Number_): Tells if this is a manufacturer-specific command. Default is `0`.  
     - `disDefaultRsp` (_Number_): Disable default response. Default is `0` to enable the default response.  
-5. `callback` (_Function_): `function (err, rsp) { }`. Please refer to [**Arguments** in functional command table](https://github.com/zigbeer/zcl-packet#FuncCmdTbl) to learn more about the functional command `rsp` object.  
+5. `callback` (_Function_): `function (err, rsp) { }`. Please refer to [**Arguments** in functional command table](https://github.com/zigbeer/zcl-packet/wiki/6.-Appendix#FuncCmdTbl) to learn more about the functional command `rsp` object.  
 
 **Returns:**  
 
@@ -815,7 +835,7 @@ The shorthand to read a single attribute.
 
 **Arguments:**  
 
-1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table).  
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id/wiki#Table).  
 2. `attrId` (_Object_ | _Array_): [Attribute id](https://github.com/zigbeer/zcl-id/blob/master/definitions/cluster_defs.json) of which attribute you like to read.  
 3. `callback` (_Function_): `function (err, data) { }`. This `data` is the attribute value.
 
@@ -840,7 +860,7 @@ Bind this endpoint to the other endpoint or to a group with the specified cluste
 
 **Arguments:**  
 
-1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table).  
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id/wiki#Table).  
 2. `dstEpOrGrpId` (_Object_ | _Number_): Bind this endpoint to the other endpoint if `dstEpOrGrpId` is given with an instance of the Endpoint class, or bind this endpoint to a group if it is given with a numeric id.  
 3. `callback` (_Function_): `function (err) { }`. An error will occur if binding fails.  
 
@@ -874,7 +894,7 @@ Unbind this endpoint from the other endpoint or from a group with the specified 
 
 **Arguments:**  
 
-1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id#Table).  
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id/wiki#Table).  
 2. `dstEpOrGrpId` (_Object_ | _Number_): Unbind with endpoint if `dstEpOrGrpId` is given with an instance of the Endpoint class , or unbind this endpoint from a group if it is given with a numeric id.  
 3. `callback` (_Function_): `function (err) { }`. An error will occur if unbinding fails.   
 
@@ -896,6 +916,33 @@ ep1.unbind('genOnOff', 3, function (err) {
 });
 ```
 
+*************************************************
+
+<a name="API_report"></a>
+### .report(cId, attrId, minInt, maxInt[, repChange][, callback])
+Set the report configuration of the attribute to endpoint.
+
+**Arguments:**  
+
+1. `cId` (_String_ | _Number_): [Cluster id](https://github.com/zigbeer/zcl-id/wiki#Table).  
+2. `attrId` (_String_ | _Number_): [Attribute id](https://github.com/zigbeer/zcl-id/blob/master/definitions/cluster_defs.json) of which attribute you like to report.  
+3. `minInt` (_Number_): The minimum reporting interval, in seconds.
+4. `maxInt` (_Number_): The maximum reporting interval, in seconds.
+5. `repChange` (_Number_): Reportable change. The attribute should report its value when the value is changed more than this setting. If attributes with **analog** data type this argument is mandatory.
+6. `callback` (_Function_): `function (err) { }`. An error will occur if configure reporting fails.   
+
+**Returns:**  
+
+* (_Promise_): promise  
+
+**Examples:**  
+
+```js
+ep1.report('msTemperatureMeasurement', 'measuredValue', 3, 5, 100, function (err) {
+    if (!err)
+        console.log('Successfully configure ep1 report temperature attribute!');
+});
+```
 *************************************************
 
 <a name="API_dump"></a>
