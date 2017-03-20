@@ -1,6 +1,6 @@
 {
   "name": "zigbee-shepherd",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "An open source ZigBee gateway solution with node.js.",
   "main": "index.js",
   "scripts": {
@@ -31,22 +31,22 @@
   },
   "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme",
   "dependencies": {
-    "areq": "^0.1.0",
-    "busyman": "^0.2.1",
-    "cc-znp": "^0.2.2",
-    "debug": "^2.2.0",
-    "objectbox": "^0.2.1",
+    "areq": "^0.2.0",
+    "busyman": "^0.3.0",
+    "cc-znp": "^0.4.2",
+    "debug": "^2.6.3",
+    "objectbox": "^0.3.0",
     "proving": "^0.1.0",
     "q": "^1.4.1",
-    "zcl-id": "^0.1.5",
-    "zcl-packet": "^0.1.0",
+    "zcl-id": "^0.3.2",
+    "zcl-packet": "^0.2.0",
     "ziee": "^0.3.0",
-    "zive": "^0.2.1",
-    "zstack-constants": "^0.1.0"
+    "zive": "^0.2.2",
+    "zstack-constants": "^0.2.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
-    "mocha": "^2.5.3",
+    "mocha": "^3.2.0",
     "sinon": "^1.17.4",
     "sinon-chai": "^2.8.0"
   }
