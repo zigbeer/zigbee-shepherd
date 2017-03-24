@@ -408,6 +408,34 @@ describe('Top Level of Tests', function () {
             });
         });
 
+        describe('#.acceptDevIncoming', function () {
+            this.timeout(60000);
+
+            it('should fire incoming message and get a new device', function (done) {
+                var acceptDevIncomingStub = sinon.stub(shepherd, 'acceptDevIncoming', function (devInfo, cb) {
+                    setTimeout(function () {
+                        var accepted = true;
+                        cb(null, accepted);
+                    }, 6000);
+                });
+
+                shepherd.once('ind:incoming', function (dev) {
+                    acceptDevIncomingStub.restore();
+                    if (dev.getIeeeAddr() === '0x00124b000bb55881')
+                        done();
+                });
+
+                shepherd.controller.emit('ZDO:devIncoming', {
+                    type: 1,
+                    ieeeAddr: '0x00124b000bb55881',
+                    nwkAddr: 100,
+                    manufId: 10,
+                    epList: [],
+                    endpoints: []
+                });
+            });
+        });
+
         describe('#.reset', function () {
             this.timeout(20000);
             it('should reset - soft', function (done) {

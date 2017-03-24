@@ -21,7 +21,7 @@ Please visit the [Wiki](https://github.com/zigbeer/zigbee-shepherd/wiki).
 
 * [**A simple demo webapp**](https://github.com/zigbeer/zigbee-demo#readme)
 
-![ZigBee Network](https://github.com/zigbeer/documents/blob/master/zigbee-shepherd/zigbee_net.png)
+![ZigBee Network](https://raw.githubusercontent.com/zigbeer/documents/master/zigbee-shepherd/zigbee_net.png)
 
 <br />
 
