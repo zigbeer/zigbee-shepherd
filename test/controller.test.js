@@ -458,3 +458,416 @@ describe('Signature Check', function () {
         });
     });
 });
+
+describe('Functional Check', function () {
+    var controller;
+
+    before(function () {
+        var shepherd = {
+            _findDevByAddr: function () {
+                return;
+            }
+        };
+
+        controller = new Controller(shepherd, { path: '/dev/ttyACM0' });
+        controller._coord = coordDev;
+    });
+
+    describe('#.start', function () {
+        it('should init znp', function (done) {
+            var initStub = sinon.stub(controller._znp, 'init', function (spCfg, callback) {
+                setImmediate(function () {
+                    callback(null);
+                    controller.emit('ZNP:INIT');
+                });
+            });
+
+            controller.start(function (err) {
+                if (!err) {
+                    initStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.close', function () {
+        it('should close znp', function (done) {
+            var closeStub = sinon.stub(controller._znp, 'close', function (callback) {
+                setImmediate(function () {
+                    callback(null);
+                    controller.emit('ZNP:CLOSE');
+                });
+            });
+
+            controller.close(function (err) {
+                if (!err) {
+                    closeStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.reset', function () {
+        it('soft reset', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.once('SYS:resetInd', function (msg) {
+                if (msg === '_reset')
+                    controller.emit('_reset');
+            });
+
+            controller.reset('soft', function (err) {
+                if (!err) {
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+
+        it('hard reset', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.once('SYS:resetInd', function (msg) {
+                if (msg === '_reset')
+                    controller.emit('_reset');
+            });
+
+            controller.reset('hard', function (err) {
+                if (!err) {
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.request', function () {
+        it('request ZDO command', function (done) {
+            var _zdoRequestStub = sinon.stub(controller._zdo, 'request', function (cmdId, valObj, callback) {
+                expect(cmdId).to.be.equal('nodeDescReq');
+
+                setImmediate(function () {
+                    callback(null, { status: 0 });
+                });
+            });
+
+            controller.request('ZDO', 'nodeDescReq', { dstaddr: 100, nwkaddrofinterest: 100 }, function (err) {
+                if (!err) {
+                    _zdoRequestStub.restore();
+                    done();
+                }
+            });
+        });
+
+        it('request SYS command', function (done) {
+            var _znpRequestStub = sinon.stub(controller._znp, 'request', function (subsys, cmdId, valObj, callback) {
+                expect(subsys).to.be.equal('SYS');
+                expect(cmdId).to.be.equal('resetReq');
+
+                setImmediate(function () {
+                    callback(null, { status: 0 });
+                });
+            });
+
+            controller.request('SYS', 'resetReq', { type: 0x01 }, function (err) {
+                if (!err) {
+                    _znpRequestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.permitJoin', function () {
+        it('only permit devices join the network through the coordinator', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                expect(valObj.addrmode).to.be.equal(0x02);
+                expect(valObj.dstaddr).to.be.equal(0x0000);
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.once('permitJoining', function (permitJoinTime) {
+                expect(permitJoinTime).to.be.equal(60);
+            });
+
+            controller.permitJoin(60, 'coord', function (err) {
+                if (!err) {
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+
+        it('permit devices join the network through the coordinator or routers', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                expect(valObj.addrmode).to.be.equal(0x0F);
+                expect(valObj.dstaddr).to.be.equal(0xFFFC);
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.once('permitJoining', function (permitJoinTime) {
+                expect(permitJoinTime).to.be.equal(60);
+            });
+
+            controller.permitJoin(60, 'all', function (err) {
+                if (!err) {
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.remove', function () {
+        it('remove device', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                expect(valObj.deviceaddress).to.be.equal('0x123456789abcdef');
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.remove(remoteDev, {}, function (err) {
+                if (!err) {
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.registerEp', function () {
+        it('register loEp1', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                expect(cmdId).to.be.equal('register');
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.registerEp(loEp1, function (err) {
+                if (!err){
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.deregisterEp', function () {
+        it('delete loEp1', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                expect(cmdId).to.be.equal('delete');
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.getCoord().endpoints[1] = loEp1;
+
+            controller.deregisterEp(loEp1, function (err) {
+                if (!err){
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.reRegisterEp', function () {
+        it('reRegister loEp1', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            }),
+            deregisterEpStub = sinon.stub(controller, 'deregisterEp', function (loEp, callback) {
+                var deferred = Q.defer();
+
+                setImmediate(function () {
+                    deferred.resolve();
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.reRegisterEp(loEp1, function (err) {
+                if (!err){
+                    requestStub.restore();
+                    deregisterEpStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.simpleDescReq', function () {
+        it('get remoteDev simple description', function (done) {
+            var deviceWithEndpointsStub = sinon.stub(controller.querie, 'deviceWithEndpoints', function (nwkAddr, ieeeAddr, callback) {
+                var deferred = Q.defer();
+
+                setImmediate(function () {
+                    deferred.resolve({
+                        type: 1,
+                        ieeeAddr: '0x123456789abcdef',
+                        nwkAddr: 100,
+                        manufId: 10,
+                        epList: [ 1, 2 ]
+                    });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.simpleDescReq(10, '0x123456789abcdef', function (err, devInfo) {
+                expect(devInfo.ieeeAddr).to.be.equal('0x123456789abcdef');
+
+                if (!err){
+                    deviceWithEndpointsStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.bind', function () {
+        it('bind loEp1 and rmEp1', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                expect(cmdId).to.be.equal('bindReq');
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.bind(loEp1, 'genOnOff', rmEp1, function (err) {
+                if (!err){
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.unbind', function () {
+        it('unbind loEp1 and rmEp1', function (done) {
+            var requestStub = sinon.stub(controller, 'request', function (subsys, cmdId, valObj, callback) {
+                var deferred = Q.defer();
+
+                expect(cmdId).to.be.equal('unbindReq');
+
+                setImmediate(function () {
+                    deferred.resolve({ status: 0 });
+                });
+
+                return deferred.promise.nodeify(callback);
+            });
+
+            controller.unbind(loEp1, 'genOnOff', rmEp1, function (err) {
+                if (!err){
+                    requestStub.restore();
+                    done();
+                }
+            });
+        });
+    });
+
+    describe('#.endDeviceAnnceHdlr', function () {
+        it('unbind loEp1 and rmEp1', function (done) {
+            var simpleDescReqStub = sinon.stub(controller, 'simpleDescReq', function (nwkAddr, ieeeAddr, callback) {
+                var deferred = Q.defer();
+
+                setImmediate(function () {
+                    deferred.resolve({
+                        type: 1,
+                        nwkaddr: nwkAddr,
+                        ieeeaddr: ieeeAddr,
+                        manufId: 10,
+                        epList: [],
+                        endpoints: []
+                    });
+                });
+
+                return deferred.promise.nodeify(callback);
+            }),
+            dev_1,
+            dev_2;
+
+            controller.on('ZDO:devIncoming', function (devInfo) {
+                controller.emit('ind:incoming' + ':' + devInfo.ieeeaddr);
+
+                if (devInfo.ieeeaddr === '0x123456789abcdef')
+                    dev_1 = true;
+                else if (devInfo.ieeeaddr === '0x00124b000159168')
+                    dev_2 = true;
+
+                if (dev_1 && dev_2)
+                    done();
+            });
+
+            controller.emit('ZDO:endDeviceAnnceInd', {
+                nwkaddr: 100,
+                ieeeaddr: '0x123456789abcdef'
+            });
+            controller.emit('ZDO:endDeviceAnnceInd', {
+                nwkaddr: 200,
+                ieeeaddr: '0x00124b000159168'
+            });
+        });
+    });
+});
