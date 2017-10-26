@@ -32,8 +32,9 @@
   "homepage": "https://github.com/zigbeer/zigbee-shepherd#readme",
   "dependencies": {
     "areq": "^0.2.0",
+    "async": "^2.5.0",
     "busyman": "^0.3.0",
-    "cc-znp": "^0.4.2",
+    "cc-znp": "git+ssh://git@github.com:athombv/cc-znp.git#production",
     "debug": "^2.6.3",
     "objectbox": "^0.3.0",
     "proving": "^0.1.0",
