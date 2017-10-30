@@ -38,11 +38,11 @@ describe('Top Level of Tests', function () {
         var unlink1 = false,
             unlink2 = false;
 
-        fs.stat('./database/dev.db', function (err, stats) {
+        fs.stat('./test/database/dev.db', function (err, stats) {
             if (err) {
-                fs.stat('./database', function (err, stats) {
+                fs.stat('./test/database', function (err, stats) {
                     if (err) {
-                        fs.mkdir('./database', function () {
+                        fs.mkdir('./test/database', function () {
                             unlink1 = true;
                             if (unlink1 && unlink2)
                                 done();
@@ -54,7 +54,7 @@ describe('Top Level of Tests', function () {
                     }
                 });
             } else if (stats.isFile()) {
-                fs.unlink(path.resolve('./database/dev.db'), function () {
+                fs.unlink(path.resolve('./test/database/dev.db'), function () {
                     unlink1 = true;
                     if (unlink1 && unlink2)
                         done();
@@ -62,11 +62,11 @@ describe('Top Level of Tests', function () {
             }
         });
 
-        fs.stat('./database/dev1.db', function (err, stats) {
+        fs.stat('./test/database/dev1.db', function (err, stats) {
             if (err) {
-                fs.stat('./database', function (err, stats) {
+                fs.stat('./test/database', function (err, stats) {
                     if (err) {
-                        fs.mkdir('./database', function () {
+                        fs.mkdir('./test/database', function () {
                             unlink2 = true;
                             if (unlink1 && unlink2)
                                 done();
@@ -78,7 +78,7 @@ describe('Top Level of Tests', function () {
                     }
                 });
             } else if (stats.isFile()) {
-                fs.unlink(path.resolve('./database/dev1.db'), function () {
+                fs.unlink(path.resolve('./test/database/dev1.db'), function () {
                     unlink2 = true;
                     if (unlink1 && unlink2)
                         done();
@@ -90,7 +90,7 @@ describe('Top Level of Tests', function () {
     describe('Constructor Check', function () {
         var shepherd;
         before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath:  __dirname + '/database/dev.db' });
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev.db' });
         });
 
         it('should has all correct members after new', function () {
@@ -98,8 +98,8 @@ describe('Top Level of Tests', function () {
             expect(shepherd._enabled).to.be.false;
             expect(shepherd._zApp).to.be.an('array');
             expect(shepherd.controller).to.be.an('object');
-            expect(shepherd.af).to.be.an('object');
-            expect(shepherd._dbPath).to.be.equal( __dirname + '/database/dev.db');
+            expect(shepherd.af).to.be.null;
+            expect(shepherd._dbPath).to.be.equal(__dirname + '/database/dev.db');
             expect(shepherd._devbox).to.be.an('object');
         });
 
@@ -125,7 +125,7 @@ describe('Top Level of Tests', function () {
     describe('Signature Check', function () {
         var shepherd;
         before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath:  __dirname + '/database/dev.db' });
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev.db' });
             shepherd._enabled = true;
         });
 
@@ -198,7 +198,7 @@ describe('Top Level of Tests', function () {
     describe('Functional Check', function () {
         var shepherd;
         before(function () {
-            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath:  __dirname + '/database/dev1.db' });
+            shepherd = new Shepherd('/dev/ttyUSB0', { dbPath: __dirname + '/database/dev1.db' });
 
             shepherd.controller.request = function (subsys, cmdId, valObj, callback) {
                 var deferred = Q.defer();
