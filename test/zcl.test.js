@@ -299,9 +299,6 @@ describe('Module Methods Check', function() {
     describe('zcl #.header Check - Bad command', function () {
         var headers = [
             {
-                buf: new Buffer([ 0x00, 0x00, 0x12 ]),
-            },
-            {
                 buf: new Buffer([ 0x1e, 0x34, 0x12, 0xff, 0x01 ])
             },
             {
