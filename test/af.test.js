@@ -510,6 +510,7 @@ describe('APIs Arguments Check for Throwing Error', function() {
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 5, 3, { groupid: 1 }, function () {}); }).not.to.throw(TypeError);
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', 'removeAll', { groupid: 1 }, function () {}); }).not.to.throw(TypeError);
         });
+
         it('Throw TypeError if cmd is not a string and not a number', function () {
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', [], { groupid: 1 }, function () {}); }).to.throw(TypeError);
             expect(function () { return af.zclFunctional(rmEp1, rmEp1, 'genScenes', {}, { groupid: 1 }, function () {}); }).to.throw(TypeError);

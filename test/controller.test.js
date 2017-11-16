@@ -1,6 +1,7 @@
 var Q = require('q'),
     sinon = require('sinon'),
     expect = require('chai').expect,
+    EventEmitter = require('events'),
     Controller = require('../lib/components/controller');
 
 var Device  = require('../lib/model/device'),
@@ -463,10 +464,10 @@ describe('Functional Check', function () {
     var controller;
 
     before(function () {
-        var shepherd = {
-            _findDevByAddr: function () {
-                return;
-            }
+        var shepherd = new EventEmitter();
+
+        shepherd._findDevByAddr = function () {
+            return;
         };
 
         controller = new Controller(shepherd, { path: '/dev/ttyACM0' });
